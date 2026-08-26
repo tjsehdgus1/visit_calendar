@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { requireUser } from '@/lib/auth/guard'
 import { visitSchema } from '@/lib/validation'
-import { createVisit } from '@/lib/visits'
+import { createVisit, grantBadgesForVisit } from '@/lib/visits'
 import { savePhoto } from '@/lib/storage'
 
 const MAX_PHOTOS = 10
@@ -52,6 +52,10 @@ export async function submitVisit(
       // 사진 한 장이 실패해도 기록 자체는 남긴다
     }
   }
+
+  // 호스트 제출은 즉시 승인되므로, 사진 저장이 끝난 뒤에 뱃지를 판정해야
+  // PHOTO_30처럼 사진 수에 걸린 뱃지를 그 순간에 놓치지 않는다.
+  if (user.role === 'HOST') await grantBadgesForVisit(visitId)
 
   revalidatePath('/')
   revalidatePath('/admin/approvals')

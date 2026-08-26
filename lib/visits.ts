@@ -12,7 +12,11 @@ export type VisitInput = {
   attendeeIds: string[]
 }
 
-/** 호스트가 올리면 즉시 승인, 손님이 올리면 대기 */
+/**
+ * 호스트가 올리면 즉시 승인, 손님이 올리면 대기.
+ * 뱃지 판정은 여기서 하지 않는다 — 사진 저장 전에 판정하면 PHOTO_30 등 사진 수에 걸린
+ * 뱃지가 그 순간 누락된다. 즉시승인 경로의 뱃지 판정은 호출자가 사진 저장을 마친 뒤 해야 한다.
+ */
 export async function createVisit(input: VisitInput, actor: SessionUser): Promise<string> {
   const status = actor.role === 'HOST' ? 'APPROVED' : 'PENDING'
 
@@ -31,7 +35,6 @@ export async function createVisit(input: VisitInput, actor: SessionUser): Promis
     select: { id: true },
   })
 
-  if (status === 'APPROVED') await grantBadgesForVisit(visit.id)
   return visit.id
 }
 
