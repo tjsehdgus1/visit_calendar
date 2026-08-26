@@ -33,11 +33,11 @@ const BADGES = [
   { code: 'TAG_KING',        label: '부문왕',          emoji: '🥇', description: '시즌 내 특정 활동 1위',                repeatable: true,  sortOrder: 12 },
 ]
 
-function currentQuarter(now: Date) {
+function currentQuarter(now) {
   const y = now.getFullYear()
   const q = Math.floor(now.getMonth() / 3)
   const startMonth = q * 3
-  const pad = (n: number) => String(n).padStart(2, '0')
+  const pad = (n) => String(n).padStart(2, '0')
   const endDay = [31, 30, 30, 31][q]
   return {
     name: `${y} ${q + 1}분기`,

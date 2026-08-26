@@ -71,16 +71,21 @@ npm run dev
 3. `.env.production.example`을 `.env`로 복사하고 값을 채움
    - `AUTH_SECRET`은 `npx auth secret`으로 생성
    - 첫 배포 시 `docker compose config`로 compose 파일 문법을 확인한다
-4. `sh scripts/deploy.sh`
-5. 첫 배포 후 시드 실행:
-   `docker compose exec app node node_modules/.bin/tsx prisma/seed.ts`
-   (HOST_LOGIN_ID / HOST_PASSWORD 환경변수를 함께 전달)
-6. DSM → 제어판 → 로그인 포털 → 고급 → **역방향 프록시**
+4. 업로드 디렉터리를 만들고 컨테이너 사용자(uid 1001)에게 소유권을 준다
+   (바인드 마운트는 기본적으로 root 소유로 생성되어 그대로 두면 사진 업로드가 `EACCES`로 실패한다):
+   ```bash
+   mkdir -p /volume1/docker/visit_calendar/uploads
+   chown -R 1001:1001 /volume1/docker/visit_calendar/uploads
+   ```
+5. `sh scripts/deploy.sh`
+6. 첫 배포 후 시드 실행:
+   `docker compose exec -e HOST_LOGIN_ID=silver -e HOST_PASSWORD=<초기비번> -e HOST_NICKNAME=집주인 app node prisma/seed.mjs`
+7. DSM → 제어판 → 로그인 포털 → 고급 → **역방향 프록시**
    - 원본: `https` / `visit.<DDNS>.synology.me` / 443
    - 대상: `http` / `localhost` / 3000
-7. DSM → 제어판 → 보안 → 인증서에서 **Let's Encrypt** 발급 후 위 도메인에 적용
-8. DSM → 제어판 → 보안 → 방화벽에서 **443만 개방**
-9. DSM → 제어판 → 작업 스케줄러에 `scripts/backup.sh`를 매일 새벽 4시로 등록
-10. Hyper Backup에 `/volume1/backup/visit_calendar`와
+8. DSM → 제어판 → 보안 → 인증서에서 **Let's Encrypt** 발급 후 위 도메인에 적용
+9. DSM → 제어판 → 보안 → 방화벽에서 **443만 개방**
+10. DSM → 제어판 → 작업 스케줄러에 `scripts/backup.sh`를 매일 새벽 4시로 등록
+11. Hyper Backup에 `/volume1/backup/visit_calendar`와
     `/volume1/docker/visit_calendar/uploads`를 백업 대상으로 추가
     (**`pgdata` 디렉터리는 백업하지 않는다** — 실행 중 스냅샷은 복구가 보장되지 않는다)

@@ -8,7 +8,7 @@ type Env = {
 export default defineConfig({
   schema: 'prisma/schema.prisma',
   migrations: {
-    seed: 'npx tsx prisma/seed.ts',
+    seed: 'node prisma/seed.mjs',
   },
   datasource: {
     url: env<Env>('DATABASE_URL'),
