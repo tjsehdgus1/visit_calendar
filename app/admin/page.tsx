@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { requireHost } from '@/lib/auth/guard'
 import { currentSeason } from '@/lib/ranking'
@@ -16,7 +17,15 @@ export default async function AdminPage() {
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
-      <h1 className="text-xl font-bold">관리</h1>
+      <div className="flex items-center justify-between text-sm">
+        <Link href="/" className="text-neutral-500 underline">
+          ← 캘린더로
+        </Link>
+        <Link href="/admin/approvals" className="font-semibold underline">
+          승인함 →
+        </Link>
+      </div>
+      <h1 className="mt-2 text-xl font-bold">관리</h1>
 
       <section className="mt-6">
         <h2 className="mb-2 font-semibold">초대코드</h2>

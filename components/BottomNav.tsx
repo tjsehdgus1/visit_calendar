@@ -34,6 +34,14 @@ export default function BottomNav({ role, pendingCount }: Props) {
             </Link>
           </li>
         )}
+        {role === 'HOST' && (
+          <li className="flex-1">
+            <Link href="/admin" className="flex flex-col items-center gap-0.5 py-2 text-xs">
+              <span aria-hidden className="text-lg">⚙️</span>
+              관리
+            </Link>
+          </li>
+        )}
       </ul>
     </nav>
   )

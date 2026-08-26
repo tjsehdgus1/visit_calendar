@@ -14,6 +14,11 @@ const csp = [
 const nextConfig: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '110mb',
+    },
+  },
   async headers() {
     return [
       {

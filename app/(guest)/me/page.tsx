@@ -46,7 +46,7 @@ export default async function MePage() {
       </section>
 
       <section className="mt-6">
-        <h2 className="mb-3 text-sm font-semibold">뱃지 {earned.length}/{allBadges.length}</h2>
+        <h2 className="mb-3 text-sm font-semibold">뱃지 {new Set(earned.map((e) => e.badgeCode)).size}/{allBadges.length}</h2>
         <BadgeShelf
           badges={allBadges.map((b) => ({
             code: b.code,

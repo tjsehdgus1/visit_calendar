@@ -15,5 +15,5 @@ export const visitSchema = z.object({
   timeSlot: z.enum(['DAY', 'EVENING', 'OVERNIGHT']),
   memo: z.string().trim().max(200, '메모는 200자 이하여야 합니다.').optional(),
   tagIds: z.array(z.string()).min(1, '활동을 하나 이상 선택해 주세요.'),
-  attendeeIds: z.array(z.string()).min(1, '참석자를 한 명 이상 선택해 주세요.'),
+  attendeeIds: z.array(z.string()).min(0),
 })

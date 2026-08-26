@@ -136,7 +136,7 @@ export async function currentSeason() {
   // 끝난 걸로 오판한다. 반드시 KST 달력 날짜로 비교한다.
   const today = toDateOnly(todayKst())
   return prisma.season.findFirst({
-    where: { startDate: { lte: today }, endDate: { gte: today } },
+    where: { startDate: { lte: today }, endDate: { gte: today }, closedAt: null },
     orderBy: { startDate: 'desc' },
   })
 }

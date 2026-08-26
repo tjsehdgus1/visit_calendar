@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { requireUser } from '@/lib/auth/guard'
 
@@ -26,7 +27,10 @@ export default async function HallOfFamePage() {
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
-      <h1 className="text-xl font-bold">명예의 전당</h1>
+      <Link href="/ranking" className="text-sm text-neutral-500 underline">
+        ← 랭킹으로
+      </Link>
+      <h1 className="mt-2 text-xl font-bold">명예의 전당</h1>
 
       {seasons.length === 0 && (
         <p className="mt-10 text-center text-neutral-500">아직 마감된 시즌이 없습니다.</p>

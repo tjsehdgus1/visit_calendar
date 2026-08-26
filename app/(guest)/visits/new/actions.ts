@@ -42,14 +42,17 @@ export async function submitVisit(
     return { error: '기록 저장 중 문제가 발생했습니다.' }
   }
 
+  let savedPhotoCount = 0
   for (const file of photos) {
     try {
       const saved = await savePhoto(Buffer.from(await file.arrayBuffer()))
       await prisma.visitPhoto.create({
         data: { visitId, uploadedById: user.id, ...saved },
       })
-    } catch {
+      savedPhotoCount++
+    } catch (e) {
       // 사진 한 장이 실패해도 기록 자체는 남긴다
+      console.error('[사진 저장 실패]', e)
     }
   }
 
@@ -59,5 +62,6 @@ export async function submitVisit(
 
   revalidatePath('/')
   revalidatePath('/admin/approvals')
-  redirect('/?submitted=1')
+  const photosAllFailed = photos.length > 0 && savedPhotoCount === 0
+  redirect(photosAllFailed ? '/?submitted=1&photos=failed' : '/?submitted=1')
 }

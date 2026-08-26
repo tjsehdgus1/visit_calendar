@@ -68,6 +68,12 @@ export default async function RankingPage({ searchParams }: Props) {
             <p className="py-10 text-center text-neutral-500">진행 중인 시즌이 없습니다.</p>
           ))}
       </div>
+
+      <p className="mt-6 text-center">
+        <Link href="/hall-of-fame" className="text-sm font-semibold underline">
+          🏛️ 명예의 전당 보기 →
+        </Link>
+      </p>
     </main>
   )
 }

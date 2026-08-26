@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/db'
 import { requireUser } from '@/lib/auth/guard'
@@ -18,6 +19,12 @@ export default async function VisitDetailPage({ params }: { params: Promise<{ id
     },
   })
   if (!visit) notFound()
+
+  const others = await prisma.visit.findMany({
+    where: { visitDate: visit.visitDate, status: 'APPROVED', id: { not: visit.id } },
+    include: { attendees: { include: { user: { select: { nickname: true } } } } },
+    orderBy: { createdAt: 'asc' },
+  })
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
@@ -47,6 +54,21 @@ export default async function VisitDetailPage({ params }: { params: Promise<{ id
             // eslint-disable-next-line @next/next/no-img-element
             <img key={p.id} src={`/api/photos/${p.id}`} alt="" className="aspect-square w-full rounded-lg object-cover" />
           ))}
+        </section>
+      )}
+
+      {others.length > 0 && (
+        <section className="mt-6 border-t pt-4">
+          <h2 className="text-sm font-semibold text-neutral-500">이 날의 다른 모임</h2>
+          <ul className="mt-2 flex flex-col gap-2">
+            {others.map((o) => (
+              <li key={o.id}>
+                <Link href={`/visits/${o.id}`} className="block rounded-lg border p-3 text-sm underline">
+                  {SLOT_LABEL[o.timeSlot]} · {o.attendees.map((a) => a.user.nickname).join(', ')}
+                </Link>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
     </main>

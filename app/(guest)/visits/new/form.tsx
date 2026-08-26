@@ -57,7 +57,9 @@ export default function NewVisitForm({ tags, members, today }: Props) {
         </fieldset>
 
         <fieldset className="flex flex-col gap-2">
-          <legend className="text-sm font-semibold">같이 온 사람</legend>
+          <legend className="text-sm font-semibold">
+            같이 온 사람 <span className="font-normal text-neutral-500">(혼자면 비워두세요)</span>
+          </legend>
           <div className="flex flex-wrap gap-2">
             {members.map((m) => (
               <label key={m.id}>

@@ -4,7 +4,7 @@ import { requireUser } from '@/lib/auth/guard'
 import { fromDateOnly, toDateOnly, todayKst } from '@/lib/date'
 import Calendar, { type CalendarDay } from '@/components/Calendar'
 
-type Props = { searchParams: Promise<{ y?: string; m?: string }> }
+type Props = { searchParams: Promise<{ y?: string; m?: string; submitted?: string; photos?: string }> }
 
 export default async function CalendarPage({ searchParams }: Props) {
   await requireUser()
@@ -45,6 +45,17 @@ export default async function CalendarPage({ searchParams }: Props) {
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
+      {sp.submitted === '1' && (
+        <p className="mb-4 rounded-lg bg-emerald-100 px-3 py-2 text-sm font-semibold text-emerald-900">
+          기록이 올라갔어요! 호스트 승인을 기다리는 중입니다
+        </p>
+      )}
+      {sp.photos === 'failed' && (
+        <p className="mb-4 rounded-lg bg-amber-100 px-3 py-2 text-sm font-semibold text-amber-900">
+          사진 저장에 실패했어요
+        </p>
+      )}
+
       <header className="mb-4 flex items-center justify-between">
         <Link href={`/?y=${prev.y}&m=${prev.m}`} className="px-3 py-2 text-lg" aria-label="이전 달">‹</Link>
         <h1 className="text-lg font-bold">{year}년 {month}월</h1>

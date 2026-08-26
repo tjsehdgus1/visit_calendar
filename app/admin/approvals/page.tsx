@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { requireHost } from '@/lib/auth/guard'
 import { fromDateOnly } from '@/lib/date'
@@ -22,7 +23,15 @@ export default async function ApprovalsPage() {
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
-      <h1 className="mb-6 text-xl font-bold">승인 대기 {pending.length}건</h1>
+      <div className="flex items-center justify-between text-sm">
+        <Link href="/" className="text-neutral-500 underline">
+          ← 캘린더로
+        </Link>
+        <Link href="/admin" className="font-semibold underline">
+          ← 관리
+        </Link>
+      </div>
+      <h1 className="mb-6 mt-2 text-xl font-bold">승인 대기 {pending.length}건</h1>
 
       {pending.length === 0 && <p className="text-neutral-500">대기 중인 기록이 없습니다.</p>}
 
@@ -51,13 +60,20 @@ export default async function ApprovalsPage() {
               </div>
             )}
 
-            <div className="mt-4 flex gap-2">
-              <ApproveButton visitId={v.id} />
-              <form action={reject} className="flex-1">
-                <input type="hidden" name="visitId" value={v.id} />
-                <input type="hidden" name="reason" value="" />
-                <button className="w-full rounded-lg border py-3 font-semibold">반려</button>
-              </form>
+            <div className="mt-4 flex flex-col gap-2">
+              <input
+                name="reason"
+                form={`reject-${v.id}`}
+                placeholder="반려 사유 (선택)"
+                className="w-full rounded-lg border px-3 py-2 text-sm"
+              />
+              <div className="flex gap-2">
+                <ApproveButton visitId={v.id} />
+                <form id={`reject-${v.id}`} action={reject} className="flex-1">
+                  <input type="hidden" name="visitId" value={v.id} />
+                  <button className="w-full rounded-lg border py-3 font-semibold">반려</button>
+                </form>
+              </div>
             </div>
           </article>
         ))}

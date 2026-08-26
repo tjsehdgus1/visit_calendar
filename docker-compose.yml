@@ -30,4 +30,4 @@ services:
     volumes:
       - /volume1/docker/visit_calendar/uploads:/data/uploads
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"

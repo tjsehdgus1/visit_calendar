@@ -34,8 +34,9 @@ const BADGES = [
 ]
 
 function currentQuarter(now) {
-  const y = now.getFullYear()
-  const q = Math.floor(now.getMonth() / 3)
+  const kst = new Date(now.getTime() + 9 * 3600 * 1000)
+  const y = kst.getUTCFullYear()
+  const q = Math.floor(kst.getUTCMonth() / 3)
   const startMonth = q * 3
   const pad = (n) => String(n).padStart(2, '0')
   const endDay = [31, 30, 30, 31][q]
