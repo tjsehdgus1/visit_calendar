@@ -2,25 +2,9 @@ import type { NextAuthConfig } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { prisma } from '@/lib/db'
+import { createLockout } from '@/lib/auth/lockout'
 
-const MAX_FAILURES = 5
-const LOCK_MS = 10 * 60 * 1000
-const failures = new Map<string, { count: number; until: number }>()
-
-function isLocked(loginId: string): boolean {
-  const f = failures.get(loginId)
-  if (!f) return false
-  if (Date.now() > f.until) {
-    failures.delete(loginId)
-    return false
-  }
-  return f.count >= MAX_FAILURES
-}
-
-function recordFailure(loginId: string) {
-  const f = failures.get(loginId) ?? { count: 0, until: 0 }
-  failures.set(loginId, { count: f.count + 1, until: Date.now() + LOCK_MS })
-}
+const lockout = createLockout()
 
 export const authConfig: NextAuthConfig = {
   session: { strategy: 'jwt' },
@@ -32,19 +16,19 @@ export const authConfig: NextAuthConfig = {
         const loginId = String(raw?.loginId ?? '').trim()
         const password = String(raw?.password ?? '')
         if (!loginId || !password) return null
-        if (isLocked(loginId)) return null
+        if (lockout.isLocked(loginId)) return null
 
         const user = await prisma.user.findUnique({ where: { loginId } })
         if (!user || user.status !== 'ACTIVE') {
-          recordFailure(loginId)
+          lockout.recordFailure(loginId)
           return null
         }
         if (!(await bcrypt.compare(password, user.passwordHash))) {
-          recordFailure(loginId)
+          lockout.recordFailure(loginId)
           return null
         }
 
-        failures.delete(loginId)
+        lockout.clear(loginId)
         return { id: user.id, loginId: user.loginId, nickname: user.nickname, role: user.role }
       },
     }),
