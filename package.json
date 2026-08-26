@@ -7,6 +7,7 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
+    "pretypecheck": "next typegen",
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/",
     "postinstall": "prisma generate",
