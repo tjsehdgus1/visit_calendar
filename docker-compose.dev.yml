@@ -1,0 +1,12 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: visit_calendar_dev_db
+    environment:
+      POSTGRES_USER: visit
+      POSTGRES_PASSWORD: visit_local_dev
+      POSTGRES_DB: visit_calendar
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./.devdata/pgdata:/var/lib/postgresql/data

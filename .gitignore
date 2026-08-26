@@ -3,6 +3,8 @@ node_modules/
 out/
 build/
 generated/
+*.tsbuildinfo
+next-env.d.ts
 
 .env
 .env.*
@@ -18,3 +20,6 @@ uploads/
 backup/
 *.sql
 *.sql.gz
+!prisma/migrations/**/*.sql
+
+.devdata/

@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 스키마 주의사항 (설계서 §3.3 요약)
+// 1. UserBadge.seasonKey는 NULL을 쓰지 않는다 (아래 모델 주석 참고)
+// 2. Visit.visitDate는 @db.Date — 시각 없이 날짜만 저장해 KST 자정 문제를 원천 차단한다.
+//    문자열 YYYY-MM-DD로 다루고, new Date("YYYY-MM-DD") 형태의 UTC 파싱은 금지한다.
+// 3. 점수·랭킹 테이블은 만들지 않는다 (하이브리드 설계). 점수는 승인된 Visit에서 매번 계산하고,
+//    뱃지 획득(UserBadge)과 시즌 결과(SeasonResult, SeasonTagChampion)만 저장한다.
+// 4. Tag·Badge는 시드 데이터로 초기 투입한다.
+
+enum Role {
+  HOST
+  GUEST
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum TimeSlot {
+  DAY
+  EVENING
+  OVERNIGHT
+}
+
+enum VisitStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id              String     @id @default(cuid())
+  loginId         String     @unique
+  passwordHash    String
+  nickname        String
+  avatarPath      String?
+  role            Role       @default(GUEST)
+  status          UserStatus @default(ACTIVE)
+  invitedByCodeId String?
+  createdAt       DateTime   @default(now())
+
+  attended      VisitAttendee[]
+  submitted     Visit[]        @relation("submittedBy")
+  reviewed      Visit[]        @relation("reviewedBy")
+  badges        UserBadge[]
+  seasonResults SeasonResult[]
+}
+
+model InviteCode {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  memo        String?
+  maxUses     Int       @default(1)
+  usedCount   Int       @default(0)
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  createdById String
+  createdAt   DateTime  @default(now())
+}
+
+model Visit {
+  id            String      @id @default(cuid())
+  /// 시각 없이 날짜만 저장 (KST 자정 문제 차단). "YYYY-MM-DD" 문자열로 다루고
+  /// new Date("YYYY-MM-DD") 형태의 UTC 파싱은 금지한다.
+  visitDate     DateTime    @db.Date
+  timeSlot      TimeSlot
+  memo          String?     @db.Text
+  status        VisitStatus @default(PENDING)
+  submittedById String
+  reviewedById  String?
+  reviewedAt    DateTime?
+  rejectReason  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  submittedBy User  @relation("submittedBy", fields: [submittedById], references: [id])
+  reviewedBy  User? @relation("reviewedBy",  fields: [reviewedById],  references: [id])
+  attendees   VisitAttendee[]
+  tags        VisitTag[]
+  photos      VisitPhoto[]
+
+  @@index([visitDate])
+  @@index([status])
+}
+
+model VisitAttendee {
+  visitId String
+  userId  String
+  visit   Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  user    User  @relation(fields: [userId],  references: [id])
+  @@id([visitId, userId])
+  @@index([userId])
+}
+
+/// 시드 데이터로 초기 투입한다 (prisma/seed.ts).
+model Tag {
+  id        String  @id @default(cuid())
+  slug      String  @unique
+  label     String
+  emoji     String
+  sortOrder Int     @default(0)
+  active    Boolean @default(true)
+  visits    VisitTag[]
+}
+
+model VisitTag {
+  visitId String
+  tagId   String
+  visit   Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  tag     Tag   @relation(fields: [tagId],   references: [id])
+  @@id([visitId, tagId])
+  @@index([tagId])
+}
+
+model VisitPhoto {
+  id           String   @id @default(cuid())
+  visitId      String
+  filePath     String
+  width        Int
+  height       Int
+  byteSize     Int
+  uploadedById String
+  createdAt    DateTime @default(now())
+  visit        Visit @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  @@index([visitId])
+}
+
+/// 시드 데이터로 초기 투입한다 (prisma/seed.ts).
+model Badge {
+  code        String  @id
+  label       String
+  emoji       String
+  description String
+  repeatable  Boolean @default(false)
+  sortOrder   Int     @default(0)
+  earned      UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeCode String
+  /// NULL 금지. 비시즌="-", SEASON_CHAMPION="<seasonId>", TAG_KING="<seasonId>:<tagSlug>"
+  /// Postgres는 NULL을 서로 다른 값으로 취급해 @@unique가 무력화된다.
+  seasonKey String @default("-")
+  visitId   String?
+  earnedAt  DateTime @default(now())
+  user  User  @relation(fields: [userId],    references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeCode], references: [code])
+  @@unique([userId, badgeCode, seasonKey])
+  @@index([userId])
+}
+
+model Season {
+  id        String    @id @default(cuid())
+  name      String
+  startDate DateTime  @db.Date
+  endDate   DateTime  @db.Date
+  closedAt  DateTime?
+  results   SeasonResult[]
+  champions SeasonTagChampion[]
+  @@unique([startDate, endDate])
+}
+
+/// 점수·랭킹 테이블은 만들지 않는 하이브리드 설계의 일부.
+/// 점수는 승인된 Visit에서 매번 계산하고, 시즌 마감 시점의 결과만 스냅샷으로 저장한다.
+model SeasonResult {
+  id         String @id @default(cuid())
+  seasonId   String
+  userId     String
+  rank       Int
+  points     Int
+  visitCount Int
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId],   references: [id])
+  @@unique([seasonId, userId])
+}
+
+model SeasonTagChampion {
+  seasonId String
+  tagId    String
+  userId   String
+  count    Int
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  @@id([seasonId, tagId])
+}
