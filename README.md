@@ -62,3 +62,25 @@ npm run dev
 | `npm run db:seed` | 시드 실행 |
 | `npm run db:studio` | Prisma Studio |
 | `npm run db:up` / `db:down` | 개발용 Docker DB 컨테이너 기동/중지 |
+| `npm run smoke` | 승인 플로우 스모크 테스트 (`scripts/smoke-approval.ts`) |
+
+## NAS 배포
+
+1. DSM → 패키지 센터에서 **Container Manager** 설치
+2. SSH 접속 후 `/volume1/docker/visit_calendar`에 리포를 clone
+3. `.env.production.example`을 `.env`로 복사하고 값을 채움
+   - `AUTH_SECRET`은 `npx auth secret`으로 생성
+   - 첫 배포 시 `docker compose config`로 compose 파일 문법을 확인한다
+4. `sh scripts/deploy.sh`
+5. 첫 배포 후 시드 실행:
+   `docker compose exec app node node_modules/.bin/tsx prisma/seed.ts`
+   (HOST_LOGIN_ID / HOST_PASSWORD 환경변수를 함께 전달)
+6. DSM → 제어판 → 로그인 포털 → 고급 → **역방향 프록시**
+   - 원본: `https` / `visit.<DDNS>.synology.me` / 443
+   - 대상: `http` / `localhost` / 3000
+7. DSM → 제어판 → 보안 → 인증서에서 **Let's Encrypt** 발급 후 위 도메인에 적용
+8. DSM → 제어판 → 보안 → 방화벽에서 **443만 개방**
+9. DSM → 제어판 → 작업 스케줄러에 `scripts/backup.sh`를 매일 새벽 4시로 등록
+10. Hyper Backup에 `/volume1/backup/visit_calendar`와
+    `/volume1/docker/visit_calendar/uploads`를 백업 대상으로 추가
+    (**`pgdata` 디렉터리는 백업하지 않는다** — 실행 중 스냅샷은 복구가 보장되지 않는다)
