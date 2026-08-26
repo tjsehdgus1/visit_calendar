@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { toDateOnly, fromDateOnly, isoWeekKey, consecutiveWeekRuns } from '../lib/date'
+import { toDateOnly, fromDateOnly, isoWeekKey, consecutiveWeekRuns, daysUntil } from '../lib/date'
 
 test('toDateOnly는 UTC 자정 Date를 만든다', () => {
   const d = toDateOnly('2026-08-26')
@@ -38,4 +38,14 @@ test('consecutiveWeekRuns는 중복을 제거하고 정렬한다', () => {
 test('consecutiveWeekRuns는 연도 경계를 넘어 이어진다', () => {
   // 2026년은 ISO 53주까지 있다
   assert.deepEqual(consecutiveWeekRuns(['2026-W52', '2026-W53', '2027-W01']), [3])
+})
+
+test('daysUntil은 목표 시각까지 남은 일수를 올림해 반환한다', () => {
+  const target = new Date(Date.now() + 3 * 86_400_000 + 1000) // 3일 하고 1초 뒤
+  assert.equal(daysUntil(target), 4)
+})
+
+test('daysUntil은 이미 지난 시각이면 음수를 반환한다', () => {
+  const target = new Date(Date.now() - 86_400_000)
+  assert.equal(daysUntil(target), -1)
 })

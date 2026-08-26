@@ -11,6 +11,11 @@ export function todayKst(): string {
   return kst.toISOString().slice(0, 10)
 }
 
+/** 주어진 시각까지 남은 일수 (올림). 컴포넌트 렌더 안에서 Date.now()를 직접 부르지 않기 위한 헬퍼 */
+export function daysUntil(target: Date): number {
+  return Math.ceil((target.getTime() - Date.now()) / DAY_MS)
+}
+
 /** @db.Date 컬럼에 저장할 Date (UTC 자정) */
 export function toDateOnly(ymd: string): Date {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(ymd)) throw new Error(`날짜 형식이 잘못되었습니다: ${ymd}`)
