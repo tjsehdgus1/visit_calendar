@@ -1,6 +1,6 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { toDateOnly, fromDateOnly, isoWeekKey, consecutiveWeekRuns, daysUntil } from '../lib/date'
+import { toDateOnly, fromDateOnly, isoWeekKey, consecutiveWeekRuns, daysUntil, todayKst } from '../lib/date'
 
 test('toDateOnly는 UTC 자정 Date를 만든다', () => {
   const d = toDateOnly('2026-08-26')
@@ -40,12 +40,22 @@ test('consecutiveWeekRuns는 연도 경계를 넘어 이어진다', () => {
   assert.deepEqual(consecutiveWeekRuns(['2026-W52', '2026-W53', '2027-W01']), [3])
 })
 
-test('daysUntil은 목표 시각까지 남은 일수를 올림해 반환한다', () => {
-  const target = new Date(Date.now() + 3 * 86_400_000 + 1000) // 3일 하고 1초 뒤
-  assert.equal(daysUntil(target), 4)
+test('daysUntil은 두 달력 날짜 사이의 일수 차를 반환한다', () => {
+  assert.equal(daysUntil('2026-09-02', '2026-08-26'), 7)
 })
 
-test('daysUntil은 이미 지난 시각이면 음수를 반환한다', () => {
-  const target = new Date(Date.now() - 86_400_000)
-  assert.equal(daysUntil(target), -1)
+test('daysUntil은 같은 날이면 0이다', () => {
+  assert.equal(daysUntil('2026-08-26', '2026-08-26'), 0)
+})
+
+test('daysUntil은 내일이면 1이다', () => {
+  assert.equal(daysUntil('2026-08-27', '2026-08-26'), 1)
+})
+
+test('daysUntil은 어제면 -1이다', () => {
+  assert.equal(daysUntil('2026-08-25', '2026-08-26'), -1)
+})
+
+test('daysUntil은 todayYmd를 생략하면 KST 오늘을 기준으로 한다', () => {
+  assert.equal(daysUntil(todayKst()), 0)
 })

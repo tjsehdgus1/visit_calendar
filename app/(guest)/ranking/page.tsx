@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { requireUser } from '@/lib/auth/guard'
 import { overallRanking, seasonRanking, tagKings, currentSeason } from '@/lib/ranking'
-import { daysUntil } from '@/lib/date'
+import { daysUntil, fromDateOnly } from '@/lib/date'
 import RankList from '@/components/RankList'
 
 type Props = { searchParams: Promise<{ tab?: string }> }
@@ -17,7 +17,7 @@ export default async function RankingPage({ searchParams }: Props) {
   const tab = (await searchParams).tab ?? 'season'
   const season = await currentSeason()
 
-  const daysLeft = season ? daysUntil(season.endDate) : null
+  const daysLeft = season ? daysUntil(fromDateOnly(season.endDate)) : null
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">

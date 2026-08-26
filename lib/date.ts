@@ -11,9 +11,14 @@ export function todayKst(): string {
   return kst.toISOString().slice(0, 10)
 }
 
-/** 주어진 시각까지 남은 일수 (올림). 컴포넌트 렌더 안에서 Date.now()를 직접 부르지 않기 위한 헬퍼 */
-export function daysUntil(target: Date): number {
-  return Math.ceil((target.getTime() - Date.now()) / DAY_MS)
+/**
+ * 두 'YYYY-MM-DD' 사이의 달력 일수 차(endYmd - todayYmd).
+ * KST 실시각과 UTC 자정 컬럼을 직접 비교하면 시즌 마지막 날 KST 09:00 이후 음수가 되므로
+ * 반드시 달력 날짜끼리 비교한다. todayYmd 기본값은 KST 오늘이며,
+ * 컴포넌트 렌더 안에서 Date.now()를 직접 부르지 않기 위한 헬퍼이기도 하다.
+ */
+export function daysUntil(endYmd: string, todayYmd: string = todayKst()): number {
+  return Math.round((toDateOnly(endYmd).getTime() - toDateOnly(todayYmd).getTime()) / DAY_MS)
 }
 
 /** @db.Date 컬럼에 저장할 Date (UTC 자정) */

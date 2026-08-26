@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/db'
-import { fromDateOnly } from '@/lib/date'
+import { fromDateOnly, todayKst, toDateOnly } from '@/lib/date'
 import { totalPoints, type ScorableVisit } from '@/lib/scoring/points'
 
 export type RankRow = {
@@ -131,9 +131,12 @@ export async function tagKings(seasonId: string) {
 
 /** 오늘이 속한 시즌 */
 export async function currentSeason() {
-  const now = new Date()
+  // KST 실시각(new Date())을 @db.Date(UTC 자정) 컬럼과 직접 비교하면 시즌 시작일
+  // 00:00~08:59(KST)에는 아직 시즌이 아닌 걸로, 종료일 09:00~23:59(KST)에는 이미
+  // 끝난 걸로 오판한다. 반드시 KST 달력 날짜로 비교한다.
+  const today = toDateOnly(todayKst())
   return prisma.season.findFirst({
-    where: { startDate: { lte: now }, endDate: { gte: now } },
+    where: { startDate: { lte: today }, endDate: { gte: today } },
     orderBy: { startDate: 'desc' },
   })
 }
