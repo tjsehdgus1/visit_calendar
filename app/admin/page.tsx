@@ -31,9 +31,15 @@ export default async function AdminPage() {
         <h2 className="mb-2 font-semibold text-ink">초대코드</h2>
         <form action={createInvite} className="flex flex-col gap-2 rounded-2xl border border-line bg-card p-3 shadow-warm">
           <input name="memo" placeholder="메모 (예: 민수 주려고)" className="h-11 rounded-xl border border-line bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
-          <div className="flex gap-2">
-            <input name="maxUses" type="number" min={1} defaultValue={1} className="h-11 w-24 rounded-xl border border-line bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand" aria-label="사용 한도" />
-            <input name="expiresInDays" type="number" min={0} defaultValue={30} className="h-11 w-24 rounded-xl border border-line bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand" aria-label="유효 일수 (0=무기한)" />
+          <div className="flex items-end gap-2">
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-ink-soft">가입 가능 인원</span>
+              <input name="maxUses" type="number" min={1} defaultValue={1} className="h-11 w-24 rounded-xl border border-line bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
+            </label>
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-ink-soft">유효 일수 (0=무기한)</span>
+              <input name="expiresInDays" type="number" min={0} defaultValue={30} className="h-11 w-24 rounded-xl border border-line bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
+            </label>
             <button className="h-11 flex-1 rounded-xl bg-cta text-sm font-semibold text-white transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none">발급</button>
           </div>
         </form>
