@@ -7,6 +7,9 @@ type Props = {
   tags: { id: string; label: string; emoji: string }[]
   members: { id: string; nickname: string }[]
   today: string
+  /** 캘린더에서 날짜를 눌러 진입한 경우 그 날짜 (없으면 오늘) */
+  defaultDate: string
+  isHost: boolean
 }
 
 const SLOTS = [
@@ -15,7 +18,7 @@ const SLOTS = [
   { value: 'OVERNIGHT', label: '밤새' },
 ]
 
-export default function NewVisitForm({ tags, members, today }: Props) {
+export default function NewVisitForm({ tags, members, today, defaultDate, isHost }: Props) {
   const [state, action, pending] = useActionState<NewVisitState, FormData>(submitVisit, {})
 
   return (
@@ -28,7 +31,7 @@ export default function NewVisitForm({ tags, members, today }: Props) {
           <input
             type="date"
             name="visitDate"
-            defaultValue={today}
+            defaultValue={defaultDate}
             max={today}
             required
             className="h-12 rounded-xl border border-line bg-card px-3 focus:outline-none focus:ring-2 focus:ring-brand"
@@ -65,7 +68,11 @@ export default function NewVisitForm({ tags, members, today }: Props) {
 
         <fieldset className="flex flex-col gap-2">
           <legend className="text-sm font-semibold text-ink">
-            같이 온 사람 <span className="font-normal text-ink-soft">(혼자면 비워두세요)</span>
+            {isHost ? (
+              <>온 사람 <span className="font-normal text-ink-soft">(누가 왔는지 선택하세요)</span></>
+            ) : (
+              <>같이 온 사람 <span className="font-normal text-ink-soft">(혼자면 비워두세요)</span></>
+            )}
           </legend>
           <div className="flex flex-wrap gap-2">
             {members.map((m) => (

@@ -64,9 +64,16 @@ export default function Calendar({ year, month, days, today }: Props) {
             </div>
           )
 
+          // 기록 있는 날 → 상세, 빈 날(오늘 이전) → 그 날짜로 기록 시작, 미래 → 링크 없음
+          const href = visit
+            ? `/visits/${visit.id}`
+            : date <= today
+              ? `/visits/new?date=${date}`
+              : null
+
           return (
             <div key={date} className="aspect-square">
-              {visit ? <Link href={`/visits/${visit.id}`} className="block h-full">{inner}</Link> : inner}
+              {href ? <Link href={href} className="block h-full">{inner}</Link> : inner}
             </div>
           )
         })}

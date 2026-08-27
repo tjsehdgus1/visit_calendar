@@ -1,11 +1,14 @@
 import type { NextConfig } from 'next'
 
+// 개발 모드의 React/Turbopack은 eval과 HMR 웹소켓이 필요하다 — 운영 CSP는 그대로 유지
+const isDev = process.env.NODE_ENV === 'development'
+
 const csp = [
   "default-src 'self'",
   "img-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  "script-src 'self' 'unsafe-inline'",
-  "connect-src 'self'",
+  isDev ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'" : "script-src 'self' 'unsafe-inline'",
+  isDev ? "connect-src 'self' ws: wss:" : "connect-src 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

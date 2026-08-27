@@ -28,8 +28,10 @@ export function rankRows(entries: Omit<RankRow, 'rank'>[]): RankRow[] {
 type Range = { from: Date; to: Date } | null
 
 async function buildRanking(range: Range, includeFirstVisitBonus: boolean): Promise<RankRow[]> {
+  // 호스트(집주인)는 참석자·점수 대상이 아니므로 랭킹에서 제외한다 (2026-08-26 사용자 확정)
+  // 호스트(집주인)는 참석자·점수 대상이 아니므로 랭킹에서 제외한다 (2026-08-26 사용자 확정)
   const users = await prisma.user.findMany({
-    where: { status: 'ACTIVE' },
+    where: { status: 'ACTIVE', role: 'GUEST' },
     select: { id: true, nickname: true },
   })
 

@@ -28,8 +28,13 @@ export async function submitVisit(
   })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
-  // 제출자는 항상 참석자에 포함된다
-  const attendeeIds = [...new Set([user.id, ...parsed.data.attendeeIds])]
+  // 손님은 본인이 항상 참석자에 포함된다.
+  // 호스트(집주인)는 참석자·점수 대상이 아니다 — 온 사람만 골라 기록한다 (2026-08-26 사용자 확정)
+  const attendeeIds =
+    user.role === 'HOST'
+      ? [...new Set(parsed.data.attendeeIds)]
+      : [...new Set([user.id, ...parsed.data.attendeeIds])]
+  if (attendeeIds.length === 0) return { error: '누가 왔는지 한 명 이상 선택해 주세요.' }
 
   const photos = formData.getAll('photos').filter((f): f is File => f instanceof File && f.size > 0)
   if (photos.length > MAX_PHOTOS) return { error: `사진은 최대 ${MAX_PHOTOS}장까지 올릴 수 있습니다.` }
