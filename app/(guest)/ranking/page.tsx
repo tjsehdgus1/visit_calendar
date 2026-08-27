@@ -21,11 +21,11 @@ export default async function RankingPage({ searchParams }: Props) {
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
-      <h1 className="text-xl font-bold">랭킹</h1>
-      {season && <p className="mt-1 text-sm text-neutral-500">{season.name}</p>}
+      <h1 className="font-display text-2xl text-ink">랭킹</h1>
+      {season && <p className="mt-1 text-sm text-ink-soft">{season.name}</p>}
 
       {daysLeft !== null && daysLeft <= 7 && daysLeft >= 0 && (
-        <p className="mt-3 rounded-lg bg-amber-100 px-3 py-2 text-sm font-semibold text-amber-900">
+        <p className="mt-3 rounded-xl bg-gold-soft px-3 py-2 text-sm font-semibold text-amber-900 shadow-warm">
           🔥 시즌 마감 D-{daysLeft}
         </p>
       )}
@@ -35,7 +35,9 @@ export default async function RankingPage({ searchParams }: Props) {
           <Link
             key={t.key}
             href={`/ranking?tab=${t.key}`}
-            className={`flex-1 rounded-lg border py-2 text-center text-sm ${tab === t.key ? 'border-neutral-900 bg-neutral-900 text-white' : ''}`}
+            className={`flex-1 rounded-full border py-2 text-center text-sm font-medium transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none ${
+              tab === t.key ? 'border-cta bg-cta text-white' : 'border-line bg-card text-ink-soft'
+            }`}
           >
             {t.label}
           </Link>
@@ -48,29 +50,29 @@ export default async function RankingPage({ searchParams }: Props) {
           (season ? (
             <RankList rows={await seasonRanking(season.id)} meId={user.id} />
           ) : (
-            <p className="py-10 text-center text-neutral-500">진행 중인 시즌이 없습니다.</p>
+            <p className="py-10 text-center text-ink-soft">진행 중인 시즌이 없습니다.</p>
           ))}
         {tab === 'tag' &&
           (season ? (
             <ul className="flex flex-col gap-2">
               {(await tagKings(season.id)).map((k) => (
-                <li key={k.tagSlug} className="flex items-center gap-3 rounded-xl border p-3">
+                <li key={k.tagSlug} className="flex items-center gap-3 rounded-2xl border border-line bg-card p-3 shadow-warm">
                   <span className="text-2xl">{k.emoji}</span>
                   <div className="flex-1">
-                    <p className="text-xs text-neutral-500">{k.tagLabel}왕</p>
-                    <p className="font-semibold">{k.nickname}</p>
+                    <p className="text-xs text-ink-soft">{k.tagLabel}왕</p>
+                    <p className="font-semibold text-ink">{k.nickname}</p>
                   </div>
-                  <span className="text-sm text-neutral-500">{k.count}회</span>
+                  <span className="text-sm text-ink-soft">{k.count}회</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="py-10 text-center text-neutral-500">진행 중인 시즌이 없습니다.</p>
+            <p className="py-10 text-center text-ink-soft">진행 중인 시즌이 없습니다.</p>
           ))}
       </div>
 
       <p className="mt-6 text-center">
-        <Link href="/hall-of-fame" className="text-sm font-semibold underline">
+        <Link href="/hall-of-fame" className="text-sm font-semibold text-brand-deep underline">
           🏛️ 명예의 전당 보기 →
         </Link>
       </p>

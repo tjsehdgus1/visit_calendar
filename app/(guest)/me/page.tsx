@@ -27,26 +27,26 @@ export default async function MePage() {
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
-      <h1 className="text-xl font-bold">{user.nickname}</h1>
+      <h1 className="font-display text-2xl text-ink">{user.nickname}</h1>
 
-      <section className="mt-4 rounded-xl border p-4">
+      <section className="mt-4 rounded-2xl border border-line bg-card p-4 shadow-warm">
         <div className="flex items-baseline justify-between">
-          <span className="text-lg font-bold">{title.label}</span>
-          <span className="text-2xl font-bold tabular-nums">{points}점</span>
+          <span className="font-display text-xl text-brand-deep">{title.label}</span>
+          <span className="font-display text-2xl tabular-nums text-ink">{points}점</span>
         </div>
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-neutral-200">
-          <div className="h-full bg-neutral-900" style={{ width: `${progress}%` }} />
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-line">
+          <div className="h-full rounded-full bg-brand transition-transform duration-300 motion-reduce:transition-none" style={{ width: `${progress}%` }} />
         </div>
-        <p className="mt-2 text-xs text-neutral-500">
+        <p className="mt-2 text-xs text-ink-soft">
           {title.next
             ? `${title.next.label}까지 ${title.next.min - points}점`
             : '최고 칭호에 도달했습니다'}
         </p>
-        <p className="mt-1 text-xs text-neutral-500">{ctx.visits.length}번 놀러왔습니다</p>
+        <p className="mt-1 text-xs text-ink-soft">{ctx.visits.length}번 놀러왔습니다</p>
       </section>
 
       <section className="mt-6">
-        <h2 className="mb-3 text-sm font-semibold">뱃지 {new Set(earned.map((e) => e.badgeCode)).size}/{allBadges.length}</h2>
+        <h2 className="mb-3 text-sm font-semibold text-ink">뱃지 {new Set(earned.map((e) => e.badgeCode)).size}/{allBadges.length}</h2>
         <BadgeShelf
           badges={allBadges.map((b) => ({
             code: b.code,
@@ -59,7 +59,7 @@ export default async function MePage() {
       </section>
 
       <section className="mt-6">
-        <h2 className="mb-3 text-sm font-semibold">{year}년 발자국</h2>
+        <h2 className="mb-3 text-sm font-semibold text-ink">{year}년 발자국</h2>
         <VisitHeatmap year={year} dates={ctx.visits.map((v) => v.visitDate)} />
       </section>
     </main>

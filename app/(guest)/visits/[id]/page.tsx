@@ -28,23 +28,23 @@ export default async function VisitDetailPage({ params }: { params: Promise<{ id
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
-      <h1 className="text-xl font-bold">{fromDateOnly(visit.visitDate)}</h1>
-      <p className="mt-1 text-sm text-neutral-500">{SLOT_LABEL[visit.timeSlot]}</p>
+      <h1 className="font-display text-2xl text-ink">{fromDateOnly(visit.visitDate)}</h1>
+      <p className="mt-1 text-sm text-ink-soft">{SLOT_LABEL[visit.timeSlot]}</p>
 
       <section className="mt-6">
-        <h2 className="text-sm font-semibold text-neutral-500">누가</h2>
-        <p className="mt-1">{visit.attendees.map((a) => a.user.nickname).join(', ')}</p>
+        <h2 className="text-sm font-semibold text-ink-soft">누가</h2>
+        <p className="mt-1 text-ink">{visit.attendees.map((a) => a.user.nickname).join(', ')}</p>
       </section>
 
       <section className="mt-4">
-        <h2 className="text-sm font-semibold text-neutral-500">뭐 했나</h2>
-        <p className="mt-1">{visit.tags.map((t) => `${t.tag.emoji} ${t.tag.label}`).join('  ')}</p>
+        <h2 className="text-sm font-semibold text-ink-soft">뭐 했나</h2>
+        <p className="mt-1 text-ink">{visit.tags.map((t) => `${t.tag.emoji} ${t.tag.label}`).join('  ')}</p>
       </section>
 
       {visit.memo && (
         <section className="mt-4">
-          <h2 className="text-sm font-semibold text-neutral-500">한 줄</h2>
-          <p className="mt-1 rounded-lg bg-neutral-100 p-3">{visit.memo}</p>
+          <h2 className="text-sm font-semibold text-ink-soft">한 줄</h2>
+          <p className="mt-1 rounded-xl border border-line bg-card p-3 text-ink shadow-warm">{visit.memo}</p>
         </section>
       )}
 
@@ -52,18 +52,21 @@ export default async function VisitDetailPage({ params }: { params: Promise<{ id
         <section className="mt-4 grid grid-cols-2 gap-2">
           {visit.photos.map((p) => (
             // eslint-disable-next-line @next/next/no-img-element
-            <img key={p.id} src={`/api/photos/${p.id}`} alt="" className="aspect-square w-full rounded-lg object-cover" />
+            <img key={p.id} src={`/api/photos/${p.id}`} alt="" className="aspect-square w-full rounded-xl object-cover" />
           ))}
         </section>
       )}
 
       {others.length > 0 && (
-        <section className="mt-6 border-t pt-4">
-          <h2 className="text-sm font-semibold text-neutral-500">이 날의 다른 모임</h2>
+        <section className="mt-6 border-t border-line pt-4">
+          <h2 className="text-sm font-semibold text-ink-soft">이 날의 다른 모임</h2>
           <ul className="mt-2 flex flex-col gap-2">
             {others.map((o) => (
               <li key={o.id}>
-                <Link href={`/visits/${o.id}`} className="block rounded-lg border p-3 text-sm underline">
+                <Link
+                  href={`/visits/${o.id}`}
+                  className="block rounded-2xl border border-line bg-card p-3 text-sm text-brand-deep shadow-warm underline transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
+                >
                   {SLOT_LABEL[o.timeSlot]} · {o.attendees.map((a) => a.user.nickname).join(', ')}
                 </Link>
               </li>

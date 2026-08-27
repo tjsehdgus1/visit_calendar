@@ -1,6 +1,6 @@
 type Props = { year: number; dates: string[] }
 
-const LEVELS = ['bg-neutral-100', 'bg-neutral-300', 'bg-neutral-500', 'bg-neutral-800']
+const LEVELS = ['bg-line', 'bg-orange-300', 'bg-brand', 'bg-orange-800']
 
 export default function VisitHeatmap({ year, dates }: Props) {
   const counts = new Map<string, number>()
