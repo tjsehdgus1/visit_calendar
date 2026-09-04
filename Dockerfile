@@ -10,7 +10,8 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-ENV NEXT_TELEMETRY_DISABLED=1
+# 빌드 시점에는 DB에 접속하지 않지만 prisma.config.ts가 DATABASE_URL을 요구하므로 자리표시자를 준다 (런타임은 compose가 주입)
+ENV NEXT_TELEMETRY_DISABLED=1 DATABASE_URL="postgresql://build:build@localhost:5432/build?schema=public"
 RUN npx prisma generate && npm run build
 
 FROM node:22-alpine AS runner
