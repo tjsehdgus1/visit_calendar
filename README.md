@@ -74,7 +74,7 @@ npm run dev
 4. 업로드 디렉터리를 만들고 컨테이너 사용자(uid 1001)에게 소유권을 준다
    (바인드 마운트는 기본적으로 root 소유로 생성되어 그대로 두면 사진 업로드가 `EACCES`로 실패한다):
    ```bash
-   mkdir -p /volume1/docker/visit_calendar/uploads
+   mkdir -p /volume1/docker/visit_calendar/pgdata /volume1/docker/visit_calendar/uploads
    chown -R 1001:1001 /volume1/docker/visit_calendar/uploads
    ```
 5. `sh scripts/deploy.sh`
