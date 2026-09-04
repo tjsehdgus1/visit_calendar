@@ -32,7 +32,8 @@ COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
 COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
 COPY --from=builder /app/node_modules/bcryptjs ./node_modules/bcryptjs
 COPY docker-entrypoint.sh ./
-RUN chmod +x docker-entrypoint.sh
+# 빌드 컨텍스트(NAS ACL 파일)의 권한이 그대로 복사되어 nextjs 사용자가 읽지 못할 수 있어 명시적으로 부여
+RUN chmod -R a+rX ./public ./prisma ./prisma.config.ts ./docker-entrypoint.sh
 
 USER nextjs
 EXPOSE 3000
