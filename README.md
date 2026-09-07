@@ -96,7 +96,7 @@ SSH(admin)에서 한 줄. 빌드가 10분 안팎이라 세션과 분리해 돌�
 cd /volume1/docker/visit_calendar && setsid nohup sh scripts/deploy.sh > /volume1/docker/vc-ops/deploy.log 2>&1 < /dev/null &
 ```
 `.dockerignore`가 `pgdata`·`uploads`를 제외하므로 admin 권한으로도 빌드 컨텍스트를 읽을 수 있다.
-호스트 계정 ID·비밀번호 변경은 `prisma/reset-host.mjs` (`docker-compose exec -e HOST_LOGIN_ID=… -e HOST_PASSWORD=… app node prisma/reset-host.mjs`).
+호스트 계정 생성·비밀번호 변경은 `prisma/set-host.mjs` (`docker-compose exec -e HOST_LOGIN_ID=<이름> -e HOST_PASSWORD=<숫자4자리> [-e HOST_FROM=<현재이름>] app node prisma/set-host.mjs`). 호스트는 여러 명일 수 있다.
 
 ### Docker 이미지 주의점
 - `prisma.config.ts`가 빌드 시에도 `DATABASE_URL`을 요구해 builder 단계에 자리표시자를 준다

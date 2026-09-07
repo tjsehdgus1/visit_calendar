@@ -1,6 +1,7 @@
 'use server'
 
 import bcrypt from 'bcryptjs'
+import { randomInt } from 'node:crypto'
 import { revalidatePath } from 'next/cache'
 import { prisma } from '@/lib/db'
 import { requireHost } from '@/lib/auth/guard'
@@ -9,25 +10,25 @@ import { createUserSchema } from '@/lib/validation'
 
 export type CreateUserState = { error?: string; created?: string }
 
-/** 호스트가 회원을 직접 추가한다 (초대코드 없이). 초기 비밀번호는 호스트가 정해 본인에게 알려준다 */
+/** 호스트가 회원을 직접 추가한다 (초대코드 없이). 이름 + 숫자 4자리 비밀번호. 비밀번호는 호스트가 본인에게 알려준다 */
 export async function createUser(_prev: CreateUserState, formData: FormData): Promise<CreateUserState> {
   await requireHost()
   const parsed = createUserSchema.safeParse({
     loginId: formData.get('loginId'),
-    nickname: formData.get('nickname'),
     password: formData.get('password'),
   })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
-  const { loginId, nickname, password } = parsed.data
+  const { loginId, password } = parsed.data
 
   const exists = await prisma.user.findUnique({ where: { loginId }, select: { id: true } })
-  if (exists) return { error: '이미 사용 중인 아이디입니다.' }
+  if (exists) return { error: '이미 등록된 이름입니다. 동명이인이면 뒤에 숫자를 붙여 주세요.' }
 
+  // 로그인 이름이 곧 표시 이름
   await prisma.user.create({
-    data: { loginId, nickname, passwordHash: await bcrypt.hash(password, 12), role: 'GUEST' },
+    data: { loginId, nickname: loginId, passwordHash: await bcrypt.hash(password, 12), role: 'GUEST' },
   })
   revalidatePath('/admin')
-  return { created: `${nickname} (@${loginId}) 추가됨` }
+  return { created: `${loginId} 추가됨` }
 }
 
 export async function createInvite(formData: FormData) {
@@ -68,7 +69,7 @@ export async function resetPassword(_prev: ResetPasswordState, formData: FormDat
   const userId = String(formData.get('userId') ?? '')
   const user = await prisma.user.findUnique({ where: { id: userId }, select: { id: true } })
   if (!user) return { error: '회원을 찾을 수 없습니다.' }
-  const temp = generateInviteCode(10)
+  const temp = String(randomInt(0, 10000)).padStart(4, '0') // 숫자 4자리 규칙에 맞춘 임시 비번
   await prisma.user.update({ where: { id: userId }, data: { passwordHash: await bcrypt.hash(temp, 12) } })
   revalidatePath('/admin')
   return { tempPassword: temp }

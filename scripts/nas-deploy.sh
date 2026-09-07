@@ -39,7 +39,7 @@ if [ -s "$RESETFILE" ]; then
     $DC exec -T app node -e "require(\"net\").connect(3000,\"127.0.0.1\").on(\"connect\",()=>process.exit(0)).on(\"error\",()=>process.exit(1))" && break
     sleep 5
   done
-  $DC exec -T -e HOST_LOGIN_ID="$RID" -e HOST_PASSWORD="$RPW" app node prisma/reset-host.mjs
+  $DC exec -T -e HOST_LOGIN_ID="$RID" -e HOST_PASSWORD="$RPW" app node prisma/set-host.mjs
   rm -f "$RESETFILE"
   echo "=== 호스트 계정 갱신 완료 (파일 삭제됨) ==="
 fi

@@ -23,21 +23,19 @@ export default function SignupPage() {
           />
           <input
             name="loginId"
-            placeholder="아이디 (영문·숫자 4~20자)"
+            placeholder="이름 (예: 홍길동)"
             autoCapitalize="none"
+            autoComplete="username"
             required
             className="h-12 rounded-xl border border-line bg-card px-3 focus:outline-none focus:ring-2 focus:ring-brand"
           />
           <input
             name="password"
             type="password"
-            placeholder="비밀번호 (4자 이상)"
-            required
-            className="h-12 rounded-xl border border-line bg-card px-3 focus:outline-none focus:ring-2 focus:ring-brand"
-          />
-          <input
-            name="nickname"
-            placeholder="닉네임"
+            inputMode="numeric"
+            pattern="[0-9]{4}"
+            maxLength={4}
+            placeholder="비밀번호 (숫자 4자리)"
             required
             className="h-12 rounded-xl border border-line bg-card px-3 focus:outline-none focus:ring-2 focus:ring-brand"
           />

@@ -30,15 +30,19 @@ export default function LoginPage() {
         <form action={action} className="flex flex-col gap-3">
           <input
             name="loginId"
-            placeholder="아이디"
+            placeholder="이름"
             autoCapitalize="none"
+            autoComplete="username"
             required
             className="h-12 rounded-xl border border-line bg-card px-3 focus:outline-none focus:ring-2 focus:ring-brand"
           />
           <input
             name="password"
             type="password"
-            placeholder="비밀번호"
+            inputMode="numeric"
+            maxLength={4}
+            placeholder="비밀번호 (숫자 4자리)"
+            autoComplete="current-password"
             required
             className="h-12 rounded-xl border border-line bg-card px-3 focus:outline-none focus:ring-2 focus:ring-brand"
           />

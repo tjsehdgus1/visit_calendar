@@ -13,23 +13,22 @@ export async function signup(_prev: SignupState, formData: FormData): Promise<Si
     inviteCode: formData.get('inviteCode'),
     loginId: formData.get('loginId'),
     password: formData.get('password'),
-    nickname: formData.get('nickname'),
   })
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
-  const { inviteCode, loginId, password, nickname } = parsed.data
+  const { inviteCode, loginId, password } = parsed.data
 
   try {
     await prisma.$transaction(async (tx) => {
       const exists = await tx.user.findUnique({ where: { loginId } })
-      if (exists) throw new InviteError('이미 사용 중인 아이디입니다.')
+      if (exists) throw new InviteError('이미 등록된 이름입니다. 동명이인이면 뒤에 숫자를 붙여 주세요.')
 
       const inviteId = await redeemInviteCode(tx, inviteCode)
       await tx.user.create({
         data: {
           loginId,
           passwordHash: await bcrypt.hash(password, 12),
-          nickname,
+          nickname: loginId, // 로그인 이름이 곧 표시 이름
           role: 'GUEST',
           invitedByCodeId: inviteId,
         },

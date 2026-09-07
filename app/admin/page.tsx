@@ -70,7 +70,6 @@ export default async function AdminPage() {
             <li key={u.id} className="flex items-center gap-2 rounded-xl border border-line bg-card p-2 text-sm shadow-warm">
               <span className="flex-1 text-ink">
                 {u.nickname}
-                <span className="ml-1 text-xs text-ink-soft">@{u.loginId}</span>
                 {u.role === 'HOST' && <span className="ml-1 text-xs">👑</span>}
                 {u.status === 'SUSPENDED' && <span className="ml-1 text-xs text-danger">정지</span>}
               </span>
