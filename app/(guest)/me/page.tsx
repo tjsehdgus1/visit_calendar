@@ -6,6 +6,7 @@ import { titleFor } from '@/lib/scoring/titles'
 import { todayKst } from '@/lib/date'
 import BadgeShelf from '@/components/BadgeShelf'
 import VisitHeatmap from '@/components/VisitHeatmap'
+import LogoutButton from '@/components/LogoutButton'
 
 export default async function MePage() {
   const user = await requireUser()
@@ -27,7 +28,10 @@ export default async function MePage() {
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
-      <h1 className="font-display text-2xl text-ink">{user.nickname}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-2xl text-ink">{user.nickname}</h1>
+        <LogoutButton />
+      </div>
 
       <section className="mt-4 rounded-2xl border border-line bg-card p-4 shadow-warm">
         <div className="flex items-baseline justify-between">
