@@ -29,4 +29,18 @@ if [ -s "$PWFILE" ]; then
 else
   echo "비밀번호 파일 없음 → 시드 생략"
 fi
+
+# 호스트 계정 변경: $OPS/host-reset 파일(1행 로그인ID, 2행 비밀번호)이 있으면 적용 후 삭제
+RESETFILE=$OPS/host-reset
+if [ -s "$RESETFILE" ]; then
+  echo "=== 호스트 계정 갱신 ==="
+  RID=$(sed -n 1p "$RESETFILE"); RPW=$(sed -n 2p "$RESETFILE")
+  for i in $(seq 1 30); do
+    $DC exec -T app node -e "require(\"net\").connect(3000,\"127.0.0.1\").on(\"connect\",()=>process.exit(0)).on(\"error\",()=>process.exit(1))" && break
+    sleep 5
+  done
+  $DC exec -T -e HOST_LOGIN_ID="$RID" -e HOST_PASSWORD="$RPW" app node prisma/reset-host.mjs
+  rm -f "$RESETFILE"
+  echo "=== 호스트 계정 갱신 완료 (파일 삭제됨) ==="
+fi
 echo "=== 배포 완료 $(date) ==="
