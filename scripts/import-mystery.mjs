@@ -17,7 +17,11 @@ function toDateOnly(ymd) {
 }
 
 async function main() {
-  const src = process.argv[2] ? readFileSync(process.argv[2], 'utf8') : readFileSync(0, 'utf8')
+  // 운영 컨테이너에는 scripts/가 없어 스크립트 자체를 stdin으로 넣으므로, 데이터는 MYSTERY_JSON 환경변수로도 받는다
+  //   cat scripts/import-mystery.mjs | docker-compose exec -T -e MYSTERY_JSON="$(cat data.json)" app node --input-type=module -
+  const src = process.env.MYSTERY_JSON
+    ? process.env.MYSTERY_JSON
+    : process.argv[2] ? readFileSync(process.argv[2], 'utf8') : readFileSync(0, 'utf8')
   const items = JSON.parse(src)
   let games = 0
   let plays = 0
