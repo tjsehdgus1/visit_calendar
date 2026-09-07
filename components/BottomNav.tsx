@@ -2,9 +2,9 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CalendarDays, Trophy, PenLine, User, CheckCheck, Settings } from 'lucide-react'
+import { CalendarDays, Trophy, PenLine, User, Settings } from 'lucide-react'
 
-type Props = { role: 'HOST' | 'GUEST'; pendingCount: number }
+type Props = { role: 'HOST' | 'GUEST' }
 
 const TABS = [
   { href: '/', label: '캘린더', Icon: CalendarDays },
@@ -19,7 +19,11 @@ function itemClass(active: boolean) {
   }`
 }
 
-export default function BottomNav({ role, pendingCount }: Props) {
+/**
+ * 하단 탭. 관리 화면(/admin 이하)에서도 유지된다 (2026-09-07 사용자 확정).
+ * 승인함은 탭에서 빼고 관리 화면 안의 링크로만 둔다 — 기록은 거의 호스트가 올려 즉시 승인되므로.
+ */
+export default function BottomNav({ role }: Props) {
   const pathname = usePathname()
 
   return (
@@ -38,21 +42,8 @@ export default function BottomNav({ role, pendingCount }: Props) {
         })}
         {role === 'HOST' && (
           <li className="flex-1">
-            <Link href="/admin/approvals" className={`relative ${itemClass(pathname === '/admin/approvals')}`}>
-              <CheckCheck aria-hidden size={22} strokeWidth={pathname === '/admin/approvals' ? 2 : 1.5} />
-              승인함
-              {pendingCount > 0 && (
-                <span className="absolute right-3 top-1 rounded-full bg-danger px-1.5 text-[11px] font-bold text-white">
-                  {pendingCount}
-                </span>
-              )}
-            </Link>
-          </li>
-        )}
-        {role === 'HOST' && (
-          <li className="flex-1">
-            <Link href="/admin" className={itemClass(pathname === '/admin')}>
-              <Settings aria-hidden size={22} strokeWidth={pathname === '/admin' ? 2 : 1.5} />
+            <Link href="/admin" className={itemClass(pathname.startsWith('/admin'))}>
+              <Settings aria-hidden size={22} strokeWidth={pathname.startsWith('/admin') ? 2 : 1.5} />
               관리
             </Link>
           </li>

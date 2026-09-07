@@ -10,11 +10,12 @@ import ResetPasswordButton from './ResetPasswordButton'
 export default async function AdminPage() {
   await requireHost()
 
-  const [invites, users, tags, season] = await Promise.all([
+  const [invites, users, tags, season, pendingCount] = await Promise.all([
     prisma.inviteCode.findMany({ where: { revokedAt: null }, orderBy: { createdAt: 'desc' }, take: 20 }),
     prisma.user.findMany({ orderBy: { createdAt: 'asc' }, select: { id: true, loginId: true, nickname: true, role: true, status: true } }),
     prisma.tag.findMany({ orderBy: { sortOrder: 'asc' } }),
     currentSeason(),
+    prisma.visit.count({ where: { status: 'PENDING' } }),
   ])
 
   return (
@@ -24,7 +25,7 @@ export default async function AdminPage() {
           ← 캘린더로
         </Link>
         <Link href="/admin/approvals" className="font-semibold text-brand-deep underline">
-          승인함 →
+          승인함{pendingCount > 0 ? ` (${pendingCount})` : ''} →
         </Link>
       </div>
       <h1 className="mt-2 font-display text-2xl text-ink">관리</h1>
