@@ -2,8 +2,10 @@ import Link from 'next/link'
 import { prisma } from '@/lib/db'
 import { requireHost } from '@/lib/auth/guard'
 import { currentSeason } from '@/lib/ranking'
-import { createInvite, revokeInvite, resetPassword, toggleUserStatus, toggleTag, addTag } from './actions'
+import { createInvite, revokeInvite, toggleUserStatus, toggleTag, addTag } from './actions'
 import SeasonCloseForm from './SeasonCloseForm'
+import CreateUserForm from './CreateUserForm'
+import ResetPasswordButton from './ResetPasswordButton'
 
 export default async function AdminPage() {
   await requireHost()
@@ -62,7 +64,8 @@ export default async function AdminPage() {
 
       <section className="mt-8">
         <h2 className="mb-2 font-semibold text-ink">회원 {users.length}명</h2>
-        <ul className="flex flex-col gap-1">
+        <CreateUserForm />
+        <ul className="mt-2 flex flex-col gap-1">
           {users.map((u) => (
             <li key={u.id} className="flex items-center gap-2 rounded-xl border border-line bg-card p-2 text-sm shadow-warm">
               <span className="flex-1 text-ink">
@@ -71,10 +74,7 @@ export default async function AdminPage() {
                 {u.role === 'HOST' && <span className="ml-1 text-xs">👑</span>}
                 {u.status === 'SUSPENDED' && <span className="ml-1 text-xs text-danger">정지</span>}
               </span>
-              <form action={resetPassword}>
-                <input type="hidden" name="userId" value={u.id} />
-                <button className="text-xs text-ink-soft underline">비번 초기화</button>
-              </form>
+              <ResetPasswordButton userId={u.id} loginId={u.loginId} />
               {u.role !== 'HOST' && (
                 <form action={toggleUserStatus}>
                   <input type="hidden" name="userId" value={u.id} />
@@ -87,7 +87,7 @@ export default async function AdminPage() {
           ))}
         </ul>
         <p className="mt-1 text-xs text-ink-soft">
-          비번을 초기화하면 서버 로그에 임시 비밀번호가 남습니다. 확인 후 본인에게 전달하세요.
+          비번을 초기화하면 임시 비밀번호가 그 자리에 한 번 표시됩니다. 본인에게 전달한 뒤 화면을 새로고침하세요.
         </p>
       </section>
 

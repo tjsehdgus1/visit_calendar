@@ -31,7 +31,7 @@ export default function SignupPage() {
           <input
             name="password"
             type="password"
-            placeholder="비밀번호 (8자 이상)"
+            placeholder="비밀번호 (4자 이상)"
             required
             className="h-12 rounded-xl border border-line bg-card px-3 focus:outline-none focus:ring-2 focus:ring-brand"
           />
