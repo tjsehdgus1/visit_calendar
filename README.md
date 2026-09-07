@@ -64,28 +64,34 @@ npm run dev
 | `npm run db:up` / `db:down` | 개발용 Docker DB 컨테이너 기동/중지 |
 | `npm run smoke` | 승인 플로우 스모크 테스트 (`scripts/smoke-approval.ts`) |
 
-## NAS 배포
+## NAS 배포 (DSM 7.2, 2026-09 검증)
 
-1. DSM → 패키지 센터에서 **Container Manager** 설치
-2. SSH 접속 후 `/volume1/docker/visit_calendar`에 리포를 clone
-3. `.env.production.example`을 `.env`로 복사하고 값을 채움
-   - `AUTH_SECRET`은 `npx auth secret`으로 생성
-   - 첫 배포 시 `docker compose config`로 compose 파일 문법을 확인한다
-4. 업로드 디렉터리를 만들고 컨테이너 사용자(uid 1001)에게 소유권을 준다
-   (바인드 마운트는 기본적으로 root 소유로 생성되어 그대로 두면 사진 업로드가 `EACCES`로 실패한다):
-   ```bash
-   mkdir -p /volume1/docker/visit_calendar/pgdata /volume1/docker/visit_calendar/uploads
-   chown -R 1001:1001 /volume1/docker/visit_calendar/uploads
-   ```
-5. `sh scripts/deploy.sh`
-6. 첫 배포 후 시드 실행:
-   `docker compose exec -e HOST_LOGIN_ID=silver -e HOST_PASSWORD=<초기비번> -e HOST_NICKNAME=집주인 app node prisma/seed.mjs`
-7. DSM → 제어판 → 로그인 포털 → 고급 → **역방향 프록시**
-   - 원본: `https` / `visit.<DDNS>.synology.me` / 443
-   - 대상: `http` / `localhost` / 3000
-8. DSM → 제어판 → 보안 → 인증서에서 **Let's Encrypt** 발급 후 위 도메인에 적용
-9. DSM → 제어판 → 보안 → 방화벽에서 **443만 개방**
-10. DSM → 제어판 → 작업 스케줄러에 `scripts/backup.sh`를 매일 새벽 4시로 등록
-11. Hyper Backup에 `/volume1/backup/visit_calendar`와
-    `/volume1/docker/visit_calendar/uploads`를 백업 대상으로 추가
+NAS에는 docker 그룹이 없어 컨테이너 명령은 root 권한이 필요하다. 그래서 코드 갱신은 admin 계정 SSH로,
+빌드·기동·시드는 **DSM 작업 스케줄러**(root)로 나눠 실행한다.
+
+### 최초 1회
+1. 패키지 센터에서 **Container Manager**, **Git Server** 설치. 제어판 → 사용자 및 그룹 → 고급 → 사용자 홈 서비스 활성화
+2. 제어판 → 터미널 및 SNMP → SSH 활성화. 공유기에서 외부 포트 → NAS 22 포워딩(외부 22는 막힐 수 있어 2222 권장)
+3. 배포 PC에서 SSH 키를 만들어 `~/.ssh/authorized_keys`에 등록 (`chmod 755 ~`, `700 ~/.ssh`, `600 authorized_keys`)
+4. SSH(admin)로 `/volume1/docker/visit_calendar`에 clone. `.env.production.example`을 `.env`로 복사해 채우고 `chmod 600`
+   (`POSTGRES_PASSWORD`·`AUTH_SECRET`은 `openssl rand`로 생성, `AUTH_URL=https://visit.<DDNS>`)
+5. `/volume1/docker/vc-ops/first-deploy.sh`를 만들어 `exec sh /volume1/docker/visit_calendar/scripts/nas-deploy.sh` 한 줄을 넣는다
+6. 호스트 초기 비밀번호를 `/volume1/docker/vc-ops/host-init-password`(권한 600)에 저장한다. 채팅·명령줄에 남기지 않도록
+   `read`로 입력받아 쓴다. 시드가 끝나면 스크립트가 이 파일을 지운다
+7. 제어판 → 작업 스케줄러 → 사용자 정의 스크립트 `visit-deploy` (사용자 root, 반복 없음):
+   `sh /volume1/docker/vc-ops/first-deploy.sh` → 실행. 로그는 `/volume1/docker/vc-ops/first-deploy.log`
+8. 제어판 → 로그인 포털 → 고급 → **역방향 프록시**: HTTPS `visit.<DDNS>` 443 → HTTP `localhost` 3000
+9. 제어판 → 보안 → 인증서에서 **Let's Encrypt** 발급 (도메인 `<DDNS>`, SAN `visit.<DDNS>`) 후 위 항목에 지정
+10. 작업 스케줄러에 `sh /volume1/docker/visit_calendar/scripts/backup.sh`를 매일 새벽 4시(root)로 등록
+11. Hyper Backup에 `/volume1/docker/visit_calendar-backup`과 `/volume1/docker/visit_calendar/uploads`를 백업 대상으로 추가
     (**`pgdata` 디렉터리는 백업하지 않는다** — 실행 중 스냅샷은 복구가 보장되지 않는다)
+
+### 코드 갱신 배포
+1. SSH(admin): `cd /volume1/docker/visit_calendar && git pull`
+2. 작업 스케줄러에서 `visit-deploy` 실행 → 로그 확인
+
+### Docker 이미지 주의점
+- `prisma.config.ts`가 빌드 시에도 `DATABASE_URL`을 요구해 builder 단계에 자리표시자를 준다
+- Prisma CLI·시드 의존성은 `migrate-deps` 단계에서 통째로 설치한다 (개별 복사는 누락이 생긴다)
+- Synology 공유 폴더의 파일 권한이 이미지에 그대로 복사되므로 runner에서 `chmod`로 읽기·실행 권한을 강제한다
+- 바인드 마운트 폴더(`pgdata`, `uploads`)는 자동 생성되지 않아 스크립트가 만든다
