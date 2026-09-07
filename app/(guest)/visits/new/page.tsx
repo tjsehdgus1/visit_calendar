@@ -1,20 +1,23 @@
 import { prisma } from '@/lib/db'
 import { requireUser } from '@/lib/auth/guard'
 import { todayKst } from '@/lib/date'
+import { listGamesForPicker } from '@/lib/mystery'
 import NewVisitForm from './form'
 
 type Props = { searchParams: Promise<{ date?: string }> }
 
 export default async function NewVisitPage({ searchParams }: Props) {
   const user = await requireUser()
-  const [tags, members] = await Promise.all([
+  const [tags, members, games] = await Promise.all([
     prisma.tag.findMany({ where: { active: true }, orderBy: { sortOrder: 'asc' } }),
     prisma.user.findMany({
       where: { status: 'ACTIVE', id: { not: user.id } },
       select: { id: true, nickname: true },
       orderBy: { nickname: 'asc' },
     }),
+    listGamesForPicker(),
   ])
+  const murderTagId = tags.find((t) => t.slug === 'murder')?.id ?? null
 
   const today = todayKst()
   // 캘린더에서 날짜를 눌러 진입하면 그 날짜를 미리 채운다 (미래 날짜·형식 오류는 오늘로)
@@ -28,6 +31,8 @@ export default async function NewVisitPage({ searchParams }: Props) {
       today={today}
       defaultDate={defaultDate}
       isHost={user.role === 'HOST'}
+      murderTagId={murderTagId}
+      games={games}
     />
   )
 }

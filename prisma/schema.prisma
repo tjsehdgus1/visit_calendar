@@ -52,6 +52,7 @@ model User {
   reviewed      Visit[]        @relation("reviewedBy")
   badges        UserBadge[]
   seasonResults SeasonResult[]
+  mysteryPlays  MysteryPlay[]
 }
 
 model InviteCode {
@@ -86,6 +87,7 @@ model Visit {
   attendees   VisitAttendee[]
   tags        VisitTag[]
   photos      VisitPhoto[]
+  mysteryPlays MysteryPlay[]
 
   @@index([visitDate])
   @@index([status])
@@ -191,4 +193,47 @@ model SeasonTagChampion {
   count    Int
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   @@id([seasonId, tagId])
+}
+
+// ─── 머더미스터리 서재·플레이 기록 (설계서 docs/superpowers/specs/2026-09-07-murder-mystery-design.md) ───
+model MysteryGame {
+  id          String   @id @default(cuid())
+  title       String   @unique
+  /// 인원 (4/5/6, 그 외 값도 허용)
+  players     Int
+  /// 예상 시간, 자유 텍스트 ("3시간", "2~3시간")
+  playTime    String?
+  /// 밀담 여부
+  secretTalk  Boolean  @default(false)
+  /// 소유자 이름 텍스트 (회원이 아닌 가족 포함)
+  owner       String?
+  description String?  @db.Text
+  /// 삭제 대신 숨김 (태그와 같은 원칙)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  plays       MysteryPlay[]
+}
+
+model MysteryPlay {
+  id          String   @id @default(cuid())
+  gameId      String
+  /// 방문 기록에 붙은 플레이. 노션 이관분은 NULL
+  visitId     String?
+  /// 방문이 있으면 visitDate와 동일. 'YYYY-MM-DD' 문자열로만 다룬다
+  playedOn    DateTime @db.Date
+  /// 1~5
+  rating      Int
+  review      String?
+  /// 이관분 전용: "동현, 성소, 혜민". 방문이 있으면 참석자로 계산한다
+  playersText String?
+  createdById String?
+  createdAt   DateTime @default(now())
+
+  game      MysteryGame @relation(fields: [gameId], references: [id])
+  visit     Visit?      @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  createdBy User?       @relation(fields: [createdById], references: [id])
+
+  @@index([gameId])
+  @@index([visitId])
 }

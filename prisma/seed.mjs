@@ -16,6 +16,7 @@ const TAGS = [
   { slug: 'chat',      label: '수다',     emoji: '💬', sortOrder: 6 },
   { slug: 'cook',      label: '요리',     emoji: '👨‍🍳', sortOrder: 7 },
   { slug: 'sleepover', label: '자고감',   emoji: '🛏️', sortOrder: 8 },
+  { slug: 'murder',    label: '머더미스터리', emoji: '🔍', sortOrder: 9 },
 ]
 
 const BADGES = [

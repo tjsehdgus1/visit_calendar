@@ -79,6 +79,13 @@ export default async function CalendarPage({ searchParams }: Props) {
       <p className="mt-6 text-center text-sm text-ink-soft">
         이번 달 {visits.length}번 모였습니다
       </p>
+
+      <Link
+        href="/mystery"
+        className="mt-4 flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-line bg-card text-sm font-semibold text-ink shadow-warm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
+      >
+        🔍 머더미스터리 서재
+      </Link>
     </main>
   )
 }

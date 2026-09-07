@@ -31,3 +31,20 @@ export const visitSchema = z.object({
   tagIds: z.array(z.string()).min(1, '활동을 하나 이상 선택해 주세요.'),
   attendeeIds: z.array(z.string()).min(0),
 })
+
+/** 머더미스터리 게임 (서재 관리, 호스트) */
+export const mysteryGameSchema = z.object({
+  title: z.string().trim().min(1, '게임명을 입력해 주세요.').max(60, '게임명은 60자 이하여야 합니다.'),
+  players: z.coerce.number().int('인원은 정수여야 합니다.').min(2, '인원은 2명 이상이어야 합니다.').max(12, '인원은 12명 이하여야 합니다.'),
+  playTime: z.string().trim().max(30, '예상 시간은 30자 이하여야 합니다.').optional(),
+  secretTalk: z.boolean(),
+  owner: z.string().trim().max(20, '소유자는 20자 이하여야 합니다.').optional(),
+  description: z.string().trim().max(2000, '소개는 2000자 이하여야 합니다.').optional(),
+})
+
+/** 방문 기록에 붙는 머더미스터리 플레이 */
+export const mysteryPlaySchema = z.object({
+  gameId: z.string().min(1, '어떤 게임을 했는지 골라 주세요.'),
+  rating: z.coerce.number().int().min(1, '별점을 골라 주세요.').max(5, '별점은 5점까지입니다.'),
+  review: z.string().trim().max(200, '한줄 후기는 200자 이하여야 합니다.').optional(),
+})

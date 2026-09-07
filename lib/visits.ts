@@ -10,6 +10,8 @@ export type VisitInput = {
   memo?: string
   tagIds: string[]
   attendeeIds: string[]
+  /** 머더미스터리 태그를 켰을 때 함께 저장되는 플레이 (설계서 2026-09-07) */
+  mysteryPlay?: { gameId: string; rating: number; review?: string }
 }
 
 /**
@@ -31,6 +33,17 @@ export async function createVisit(input: VisitInput, actor: SessionUser): Promis
       reviewedAt: status === 'APPROVED' ? new Date() : null,
       attendees: { create: [...new Set(input.attendeeIds)].map((userId) => ({ userId })) },
       tags: { create: [...new Set(input.tagIds)].map((tagId) => ({ tagId })) },
+      mysteryPlays: input.mysteryPlay
+        ? {
+            create: {
+              gameId: input.mysteryPlay.gameId,
+              playedOn: toDateOnly(input.visitDate),
+              rating: input.mysteryPlay.rating,
+              review: input.mysteryPlay.review?.trim() || null,
+              createdById: actor.id,
+            },
+          }
+        : undefined,
     },
     select: { id: true },
   })

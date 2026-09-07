@@ -16,6 +16,7 @@ export default async function VisitDetailPage({ params }: { params: Promise<{ id
       attendees: { include: { user: { select: { nickname: true } } } },
       tags: { include: { tag: true } },
       photos: { select: { id: true } },
+      mysteryPlays: { select: { id: true, rating: true, review: true, game: { select: { id: true, title: true } } } },
     },
   })
   if (!visit) notFound()
@@ -40,6 +41,21 @@ export default async function VisitDetailPage({ params }: { params: Promise<{ id
         <h2 className="text-sm font-semibold text-ink-soft">뭐 했나</h2>
         <p className="mt-1 text-ink">{visit.tags.map((t) => `${t.tag.emoji} ${t.tag.label}`).join('  ')}</p>
       </section>
+
+      {visit.mysteryPlays.length > 0 && (
+        <section className="mt-4">
+          <h2 className="text-sm font-semibold text-ink-soft">머더미스터리</h2>
+          {visit.mysteryPlays.map((p) => (
+            <div key={p.id} className="mt-1 rounded-xl border border-line bg-card p-3 shadow-warm">
+              <Link href={"/mystery/" + p.game.id} className="font-semibold text-ink underline">
+                🔍 {p.game.title}
+              </Link>
+              <span className="ml-2 text-sm text-gold">{"⭐".repeat(p.rating)}</span>
+              {p.review && <p className="mt-1 text-sm text-ink">{p.review}</p>}
+            </div>
+          ))}
+        </section>
+      )}
 
       {visit.memo && (
         <section className="mt-4">

@@ -28,6 +28,12 @@ export default async function AdminPage() {
         </Link>
       </div>
       <h1 className="mt-2 font-display text-2xl text-ink">관리</h1>
+      <Link
+        href="/admin/mystery"
+        className="mt-4 flex min-h-12 items-center justify-between rounded-2xl border border-line bg-card px-4 text-sm font-semibold text-ink shadow-warm"
+      >
+        🔍 머더미스터리 서재 관리 <span aria-hidden>→</span>
+      </Link>
 
       <section className="mt-6">
         <h2 className="mb-2 font-semibold text-ink">초대코드</h2>

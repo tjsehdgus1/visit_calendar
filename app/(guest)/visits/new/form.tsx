@@ -1,7 +1,8 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { submitVisit, type NewVisitState } from './actions'
+import MysteryPlayFields, { type PickerGame } from './MysteryPlayFields'
 
 type Props = {
   tags: { id: string; label: string; emoji: string }[]
@@ -10,6 +11,9 @@ type Props = {
   /** 캘린더에서 날짜를 눌러 진입한 경우 그 날짜 (없으면 오늘) */
   defaultDate: string
   isHost: boolean
+  /** 머더미스터리 태그 id (없으면 플레이 입력 칸을 보이지 않음) */
+  murderTagId: string | null
+  games: PickerGame[]
 }
 
 const SLOTS = [
@@ -18,8 +22,9 @@ const SLOTS = [
   { value: 'OVERNIGHT', label: '밤새' },
 ]
 
-export default function NewVisitForm({ tags, members, today, defaultDate, isHost }: Props) {
+export default function NewVisitForm({ tags, members, today, defaultDate, isHost, murderTagId, games }: Props) {
   const [state, action, pending] = useActionState<NewVisitState, FormData>(submitVisit, {})
+  const [murderOn, setMurderOn] = useState(false)
 
   return (
     <main className="mx-auto max-w-md px-4 py-6">
@@ -57,7 +62,13 @@ export default function NewVisitForm({ tags, members, today, defaultDate, isHost
           <div className="flex flex-wrap gap-2">
             {tags.map((t) => (
               <label key={t.id}>
-                <input type="checkbox" name="tagIds" value={t.id} className="peer sr-only" />
+                <input
+                  type="checkbox"
+                  name="tagIds"
+                  value={t.id}
+                  className="peer sr-only"
+                  onChange={t.id === murderTagId ? (e) => setMurderOn(e.target.checked) : undefined}
+                />
                 <span className="block min-h-11 cursor-pointer rounded-full border border-line bg-card px-4 py-2 text-sm transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none peer-checked:border-cta peer-checked:bg-cta peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-brand">
                   {t.emoji} {t.label}
                 </span>
@@ -65,6 +76,8 @@ export default function NewVisitForm({ tags, members, today, defaultDate, isHost
             ))}
           </div>
         </fieldset>
+
+        {murderOn && murderTagId && <MysteryPlayFields games={games} />}
 
         <fieldset className="flex flex-col gap-2">
           <legend className="text-sm font-semibold text-ink">
