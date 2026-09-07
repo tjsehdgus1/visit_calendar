@@ -17,7 +17,7 @@ RUN npx prisma generate && npm run build
 # 런타임 마이그레이션·시드용: Prisma CLI를 의존성까지 통째로 설치 (개별 패키지를 골라 복사하면 effect 등이 빠진다)
 FROM node:22-alpine AS migrate-deps
 WORKDIR /migrate
-RUN npm init -y >/dev/null && npm install --no-audit --no-fund prisma@7.10.0 dotenv@17.4.2 bcryptjs@3.0.3
+RUN npm init -y >/dev/null && npm install --no-audit --no-fund prisma@7.10.0 @prisma/client@7.10.0 @prisma/adapter-pg@7.10.0 pg@8.23.0 dotenv@17.4.2 bcryptjs@3.0.3
 
 FROM node:22-alpine AS runner
 WORKDIR /app
