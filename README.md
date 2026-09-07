@@ -99,6 +99,8 @@ SSH(admin)에서 한 줄. 빌드가 10분 안팎이라 세션과 분리해 돌�
 cd /volume1/docker/visit_calendar && setsid nohup sh scripts/deploy.sh > /volume1/docker/vc-ops/deploy.log 2>&1 < /dev/null &
 ```
 `.dockerignore`가 `pgdata`·`uploads`를 제외하므로 admin 권한으로도 빌드 컨텍스트를 읽을 수 있다.
+머더미스터리 노션 이관: `cat scripts/import-mystery.mjs | docker-compose exec -T -e MYSTERY_JSON="$(cat data.json)" app node --input-type=module -`
+(JSON 형식은 스크립트 머리말 참고. 게임은 이름 기준 upsert, 이관 플레이는 중복 검사 → 재실행 안전).
 호스트 계정 생성·비밀번호 변경은 `prisma/set-host.mjs` (`docker-compose exec -e HOST_LOGIN_ID=<이름> -e HOST_PASSWORD=<숫자4자리> [-e HOST_FROM=<현재이름>] app node prisma/set-host.mjs`). 호스트는 여러 명일 수 있다.
 
 ### Docker 이미지 주의점

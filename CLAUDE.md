@@ -4,6 +4,7 @@
 자택 Synology NAS의 Docker에 배포. 사용자는 호스트 2명(부부) + 지인 수십 명.
 
 - 설계서: `docs/superpowers/specs/2026-08-26-visit-calendar-design.md` (**착수 전 필독**)
+- 머더미스터리 설계서: `docs/superpowers/specs/2026-09-07-murder-mystery-design.md`
 - 구현 계획: `docs/superpowers/plans/2026-08-26-visit-calendar.md`
 
 ## 기술 스택
@@ -48,6 +49,8 @@ npm run db:seed
 - `lib/scoring/collect.ts` — Prisma → 순수 함수 입력으로 변환하는 유일한 지점
 - `lib/visits.ts` — 모임 생성·승인·뱃지 부여
 - `lib/ranking.ts` / `lib/season.ts` — 랭킹 집계 / 시즌 마감
+- `lib/mystery/logic.ts`(순수) / `lib/mystery/index.ts`(Prisma) — 머더미스터리 서재·플레이. 플레이는 방문(Visit)에 붙고,
+  방문이 없거나 APPROVED인 플레이만 통계에 센다. 설계서 `docs/superpowers/specs/2026-09-07-murder-mystery-design.md`
 - `app/(guest)/` 손님 화면, `app/admin/` 호스트 전용
 
 ## 검증
