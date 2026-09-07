@@ -75,13 +75,16 @@ DSM 제어판에서 `docker` 그룹을 만들어 admin을 넣고 Container Manag
 2. 제어판 → 터미널 및 SNMP → SSH 활성화. 공유기에서 외부 포트 → NAS 22 포워딩(외부 22는 막힐 수 있어 2222 권장)
 3. 배포 PC에서 SSH 키를 만들어 `~/.ssh/authorized_keys`에 등록 (`chmod 755 ~`, `700 ~/.ssh`, `600 authorized_keys`)
 4. SSH(admin)로 `/volume1/docker/visit_calendar`에 clone. `.env.production.example`을 `.env`로 복사해 채우고 `chmod 600`
-   (`POSTGRES_PASSWORD`·`AUTH_SECRET`은 `openssl rand`로 생성, `AUTH_URL=https://visit.<DDNS>`)
+   (`POSTGRES_PASSWORD`·`AUTH_SECRET`은 `openssl rand`로 생성. `AUTH_URL`은 두지 않는다 — 요청 호스트 신뢰)
 5. `/volume1/docker/vc-ops/first-deploy.sh`를 만들어 `exec sh /volume1/docker/visit_calendar/scripts/nas-deploy.sh` 한 줄을 넣는다
 6. 호스트 초기 비밀번호를 `/volume1/docker/vc-ops/host-init-password`(권한 600)에 저장한다. 채팅·명령줄에 남기지 않도록
    `read`로 입력받아 쓴다. 시드가 끝나면 스크립트가 이 파일을 지운다
 7. 제어판 → 작업 스케줄러 → 사용자 정의 스크립트 `visit-deploy` (사용자 root, 반복 없음):
    `sh /volume1/docker/vc-ops/first-deploy.sh` → 실행. 로그는 `/volume1/docker/vc-ops/first-deploy.log`
-8. 제어판 → 로그인 포털 → 고급 → **역방향 프록시**: HTTPS `visit.<DDNS>` 443 → HTTP `localhost` 3000
+8. 제어판 → 로그인 포털 → 고급 → **역방향 프록시** 규칙 2개
+   - 바깥용: HTTPS `visit.<DDNS>` 443 → HTTP `localhost` 3000
+   - 집 안용: HTTP `*` 8080 → HTTP `localhost` 3000 (통신사 공유기가 NAT 루프백을 지원하지 않아 집 와이파이에서는
+     `http://<NAS IP>:8080`으로 접속한다. 공유기에 8080 포워딩은 하지 않는다)
 9. 제어판 → 보안 → 인증서에서 **Let's Encrypt** 발급 (도메인 `<DDNS>`, SAN `visit.<DDNS>`) 후 위 항목에 지정
 10. 작업 스케줄러에 `sh /volume1/docker/visit_calendar/scripts/backup.sh`를 매일 새벽 4시(admin, docker 그룹)로 등록
 11. Hyper Backup에 `/volume1/docker/visit_calendar-backup`과 `/volume1/docker/visit_calendar/uploads`를 백업 대상으로 추가

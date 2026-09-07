@@ -24,7 +24,8 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}?schema=public
       AUTH_SECRET: ${AUTH_SECRET}
-      AUTH_URL: ${AUTH_URL}
+      # AUTH_URL을 고정하지 않는다 — 집 안에서는 http://<NAS IP>:8080, 밖에서는 https://visit.<DDNS>로
+      # 접속하므로 요청 호스트를 그대로 신뢰한다 (2026-09-07). DSM 역방향 프록시가 X-Forwarded-* 를 넘긴다
       AUTH_TRUST_HOST: "true"
       UPLOAD_DIR: /data/uploads
     volumes:
