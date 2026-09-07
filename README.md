@@ -81,7 +81,10 @@ DSM 제어판에서 `docker` 그룹을 만들어 admin을 넣고 Container Manag
    `read`로 입력받아 쓴다. 시드가 끝나면 스크립트가 이 파일을 지운다
 7. 제어판 → 작업 스케줄러 → 사용자 정의 스크립트 `visit-deploy` (사용자 root, 반복 없음):
    `sh /volume1/docker/vc-ops/first-deploy.sh` → 실행. 로그는 `/volume1/docker/vc-ops/first-deploy.log`
-8. 제어판 → 로그인 포털 → 고급 → **역방향 프록시** 규칙 2개
+8. 제어판 → 로그인 포털 → 고급 → **역방향 프록시** 규칙 3개
+   - 대표 주소(2026-09-07): HTTPS `visit.seonso.com` 443 → HTTP `localhost` 3000. Cloudflare에서 `visit` CNAME → `seonso.i234.me`를
+     **프록시 켬**으로 두면 집 안에서도 같은 주소로 접속된다 (요청이 Cloudflare를 거쳐 밖에서 들어오므로 NAT 루프백 불필요).
+     Let's Encrypt 발급은 DSM에서 HTTP-01로 하되, 처음 실패하면 한 번 더 시도한다. Cloudflare SSL 모드 "전체", 항상 HTTPS 사용 켬
    - 바깥용: HTTPS `visit.<DDNS>` 443 → HTTP `localhost` 3000
    - 집 안용: HTTP `*` 8080 → HTTP `localhost` 3000 (통신사 공유기가 NAT 루프백을 지원하지 않아 집 와이파이에서는
      `http://<NAS IP>:8080`으로 접속한다. 공유기에 8080 포워딩은 하지 않는다)
