@@ -66,8 +66,9 @@ npm run dev
 
 ## NAS 배포 (DSM 7.2, 2026-09 검증)
 
-NAS에는 docker 그룹이 없어 컨테이너 명령은 root 권한이 필요하다. 그래서 코드 갱신은 admin 계정 SSH로,
-빌드·기동·시드는 **DSM 작업 스케줄러**(root)로 나눠 실행한다.
+DSM 제어판에서 `docker` 그룹을 만들어 admin을 넣고 Container Manager를 재시작하면 docker 소켓이
+`root:docker`가 되어 admin이 sudo 없이 docker를 쓸 수 있다 (2026-09-07 적용). 그 전까지는 root 권한이
+필요해 DSM 작업 스케줄러(root)로 `scripts/nas-deploy.sh`를 돌렸다 — 최초 구축·시드용으로 남겨 둔다.
 
 ### 최초 1회
 1. 패키지 센터에서 **Container Manager**, **Git Server** 설치. 제어판 → 사용자 및 그룹 → 고급 → 사용자 홈 서비스 활성화
@@ -82,13 +83,17 @@ NAS에는 docker 그룹이 없어 컨테이너 명령은 root 권한이 필요�
    `sh /volume1/docker/vc-ops/first-deploy.sh` → 실행. 로그는 `/volume1/docker/vc-ops/first-deploy.log`
 8. 제어판 → 로그인 포털 → 고급 → **역방향 프록시**: HTTPS `visit.<DDNS>` 443 → HTTP `localhost` 3000
 9. 제어판 → 보안 → 인증서에서 **Let's Encrypt** 발급 (도메인 `<DDNS>`, SAN `visit.<DDNS>`) 후 위 항목에 지정
-10. 작업 스케줄러에 `sh /volume1/docker/visit_calendar/scripts/backup.sh`를 매일 새벽 4시(root)로 등록
+10. 작업 스케줄러에 `sh /volume1/docker/visit_calendar/scripts/backup.sh`를 매일 새벽 4시(admin, docker 그룹)로 등록
 11. Hyper Backup에 `/volume1/docker/visit_calendar-backup`과 `/volume1/docker/visit_calendar/uploads`를 백업 대상으로 추가
     (**`pgdata` 디렉터리는 백업하지 않는다** — 실행 중 스냅샷은 복구가 보장되지 않는다)
 
 ### 코드 갱신 배포
-1. SSH(admin): `cd /volume1/docker/visit_calendar && git pull`
-2. 작업 스케줄러에서 `visit-deploy` 실행 → 로그 확인
+SSH(admin)에서 한 줄. 빌드가 10분 안팎이라 세션과 분리해 돌리고 로그를 본다.
+```bash
+cd /volume1/docker/visit_calendar && setsid nohup sh scripts/deploy.sh > /volume1/docker/vc-ops/deploy.log 2>&1 < /dev/null &
+```
+`.dockerignore`가 `pgdata`·`uploads`를 제외하므로 admin 권한으로도 빌드 컨텍스트를 읽을 수 있다.
+호스트 계정 ID·비밀번호 변경은 `prisma/reset-host.mjs` (`docker-compose exec -e HOST_LOGIN_ID=… -e HOST_PASSWORD=… app node prisma/reset-host.mjs`).
 
 ### Docker 이미지 주의점
 - `prisma.config.ts`가 빌드 시에도 `DATABASE_URL`을 요구해 builder 단계에 자리표시자를 준다
