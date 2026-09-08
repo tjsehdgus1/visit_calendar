@@ -82,9 +82,12 @@ DSM 제어판에서 `docker` 그룹을 만들어 admin을 넣고 Container Manag
 7. 제어판 → 작업 스케줄러 → 사용자 정의 스크립트 `visit-deploy` (사용자 root, 반복 없음):
    `sh /volume1/docker/vc-ops/first-deploy.sh` → 실행. 로그는 `/volume1/docker/vc-ops/first-deploy.log`
 8. 제어판 → 로그인 포털 → 고급 → **역방향 프록시** 규칙 3개
-   - 대표 주소(2026-09-07): HTTPS `visit.seonso.com` 443 → HTTP `localhost` 3000. Cloudflare에서 `visit` CNAME → `seonso.i234.me`를
-     **프록시 켬**으로 두면 집 안에서도 같은 주소로 접속된다 (요청이 Cloudflare를 거쳐 밖에서 들어오므로 NAT 루프백 불필요).
-     Let's Encrypt 발급은 DSM에서 HTTP-01로 하되, 처음 실패하면 한 번 더 시도한다. Cloudflare SSL 모드 "전체", 항상 HTTPS 사용 켬
+   - 대표 주소(2026-09-08부터): `visit.seonso.com`은 **Cloudflare Tunnel**로 들어온다. compose의 `cloudflared` 컨테이너가
+     `.env`의 `CLOUDFLARE_TUNNEL_TOKEN`으로 Zero Trust(무료 플랜) 터널 `visit-nas`에 연결하고, 터널의 게시된 애플리케이션이
+     `visit.seonso.com` → `http://app:3000`으로 라우팅한다(DNS는 Cloudflare가 자동 생성). 통신사 공유기가 동시 TLS 연결을
+     끊는 문제와 NAT 루프백을 모두 우회한다. 토큰 재발급은 Zero Trust → 네트워크 → 커넥터 → visit-nas.
+   - 예비 경로: HTTPS `visit.seonso.com` 443 → `localhost` 3000 규칙(DSM LE 인증서)은 남겨 둔다. 터널이 죽으면
+     Cloudflare DNS를 `visit` CNAME → `seonso.i234.me`(프록시 켬)로 되돌리면 이전 방식으로 동작한다
    - 바깥용: HTTPS `visit.<DDNS>` 443 → HTTP `localhost` 3000
    - 집 안용: HTTP `*` 8080 → HTTP `localhost` 3000 (통신사 공유기가 NAT 루프백을 지원하지 않아 집 와이파이에서는
      `http://<NAS IP>:8080`으로 접속한다. 공유기에 8080 포워딩은 하지 않는다)
