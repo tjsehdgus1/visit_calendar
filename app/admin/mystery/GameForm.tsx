@@ -14,7 +14,7 @@ export type GameFormValues = {
 }
 
 const inputClass =
-  'h-11 rounded-xl border border-line bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand'
+  'h-11 w-full min-w-0 rounded-xl border border-line bg-card px-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand'
 
 /** 게임 추가·수정 폼 (호스트). id가 있으면 수정 */
 export default function GameForm({ values = {} }: { values?: GameFormValues }) {
@@ -32,7 +32,7 @@ export default function GameForm({ values = {} }: { values?: GameFormValues }) {
         <input name="title" defaultValue={values.title ?? ''} required maxLength={60} className={inputClass} />
       </label>
       <div className="flex gap-2">
-        <label className="flex w-24 flex-col gap-1">
+        <label className="flex w-24 shrink-0 flex-col gap-1">
           <span className="text-xs text-ink-soft">인원</span>
           <input
             name="players"
@@ -45,15 +45,15 @@ export default function GameForm({ values = {} }: { values?: GameFormValues }) {
             className={inputClass}
           />
         </label>
-        <label className="flex flex-1 flex-col gap-1">
+        <label className="flex min-w-0 flex-1 flex-col gap-1">
           <span className="text-xs text-ink-soft">예상 시간</span>
           <input name="playTime" defaultValue={values.playTime ?? ''} maxLength={30} placeholder="3시간" className={inputClass} />
         </label>
-        <label className="flex flex-1 flex-col gap-1">
-          <span className="text-xs text-ink-soft">소유자</span>
-          <input name="owner" defaultValue={values.owner ?? ''} maxLength={20} placeholder="선동현" className={inputClass} />
-        </label>
       </div>
+      <label className="flex flex-col gap-1">
+        <span className="text-xs text-ink-soft">소유자</span>
+        <input name="owner" defaultValue={values.owner ?? ''} maxLength={20} placeholder="선동현" className={inputClass} />
+      </label>
       <label className="flex min-h-11 items-center gap-2 text-sm text-ink">
         <input type="checkbox" name="secretTalk" defaultChecked={values.secretTalk ?? false} className="h-5 w-5 accent-brand" />
         밀담 있음
