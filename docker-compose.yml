@@ -32,3 +32,12 @@ services:
       - /volume1/docker/visit_calendar/uploads:/data/uploads
     ports:
       - "127.0.0.1:3000:3000"
+
+  # Cloudflare Tunnel (2026-09-08): NAS가 Cloudflare로 바깥 방향 연결을 맺어 visit.seonso.com 트래픽을 받는다.
+  # 공유기 포트 포워딩·동시 연결 제한·NAT 루프백을 모두 우회한다. 토큰은 .env의 CLOUDFLARE_TUNNEL_TOKEN (Zero Trust 무료 플랜).
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - app
