@@ -164,3 +164,39 @@ export async function playsForVisit(visitId: string) {
 }
 
 export { toDateOnly }
+
+/** 플레이 기록 수정·삭제 (호스트). 방문에 붙은 기록은 날짜가 방문을 따르므로 playedOn·playersText를 바꾸지 않는다 */
+export async function getPlay(id: string) {
+  return prisma.mysteryPlay.findUnique({
+    where: { id },
+    select: {
+      id: true, rating: true, review: true, playedOn: true, playersText: true, visitId: true,
+      game: { select: { id: true, title: true } },
+    },
+  })
+}
+
+export type PlayUpdate = { rating: number; review?: string; playedOn?: string; playersText?: string }
+
+export async function updatePlay(id: string, input: PlayUpdate) {
+  const play = await prisma.mysteryPlay.findUnique({ where: { id }, select: { visitId: true } })
+  if (!play) return null
+  return prisma.mysteryPlay.update({
+    where: { id },
+    data: {
+      rating: input.rating,
+      review: input.review?.trim() || null,
+      ...(play.visitId
+        ? {}
+        : {
+            ...(input.playedOn ? { playedOn: toDateOnly(input.playedOn) } : {}),
+            playersText: input.playersText?.trim() || null,
+          }),
+    },
+    select: { id: true, gameId: true },
+  })
+}
+
+export async function deletePlay(id: string) {
+  return prisma.mysteryPlay.delete({ where: { id }, select: { gameId: true } })
+}

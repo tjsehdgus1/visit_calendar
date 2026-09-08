@@ -48,3 +48,11 @@ export const mysteryPlaySchema = z.object({
   rating: z.coerce.number().int().min(1, '별점을 골라 주세요.').max(5, '별점은 5점까지입니다.'),
   review: z.string().trim().max(200, '한줄 후기는 200자 이하여야 합니다.').optional(),
 })
+
+/** 플레이 기록 수정 (호스트). 방문에 붙지 않은 이관분만 날짜·함께한 사람을 바꿀 수 있다 */
+export const mysteryPlayEditSchema = z.object({
+  rating: z.coerce.number().int().min(1, '별점을 골라 주세요.').max(5, '별점은 5점까지입니다.'),
+  review: z.string().trim().max(200, '한줄 후기는 200자 이하여야 합니다.').optional(),
+  playedOn: z.string().regex(/^d{4}-d{2}-d{2}$/, '날짜 형식이 올바르지 않습니다.').optional(),
+  playersText: z.string().trim().max(200, '함께한 사람은 200자 이하여야 합니다.').optional(),
+})

@@ -73,6 +73,11 @@ export default async function MysteryGamePage({ params }: { params: Promise<{ id
                 {p.players && <p className="mt-1 text-xs text-ink-soft">{p.players}</p>}
                 {p.review && <p className="mt-1 text-ink">{p.review}</p>}
                 {!p.effective && <p className="mt-1 text-xs text-ink-soft">승인 대기 중인 기록</p>}
+                {user.role === 'HOST' && (
+                  <Link href={`/admin/mystery/plays/${p.id}`} className="mt-1 inline-block text-xs text-ink-soft underline">
+                    수정
+                  </Link>
+                )}
               </li>
             ))}
           </ul>
