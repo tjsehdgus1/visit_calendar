@@ -18,5 +18,6 @@ export default async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api/auth|_next/static|_next/image|favicon.ico|icon.svg|robots.txt).*)'],
+  // PWA 정적 파일(매니페스트·서비스워커·아이콘)은 로그인 전에도 받아야 설치가 된다
+  matcher: ['/((?!api/auth|_next/static|_next/image|favicon.ico|icon.svg|icon-.*\.png|apple-touch-icon.png|manifest.webmanifest|sw.js|robots.txt).*)'],
 }
