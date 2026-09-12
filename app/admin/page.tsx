@@ -6,16 +6,16 @@ import { createInvite, revokeInvite, toggleUserStatus, toggleTag, addTag } from 
 import SeasonCloseForm from './SeasonCloseForm'
 import CreateUserForm from './CreateUserForm'
 import ResetPasswordButton from './ResetPasswordButton'
+import LogoutButton from '@/components/LogoutButton'
 
 export default async function AdminPage() {
   await requireHost()
 
-  const [invites, users, tags, season, pendingCount] = await Promise.all([
+  const [invites, users, tags, season] = await Promise.all([
     prisma.inviteCode.findMany({ where: { revokedAt: null }, orderBy: { createdAt: 'desc' }, take: 20 }),
     prisma.user.findMany({ orderBy: { createdAt: 'asc' }, select: { id: true, loginId: true, nickname: true, role: true, status: true } }),
     prisma.tag.findMany({ orderBy: { sortOrder: 'asc' } }),
     currentSeason(),
-    prisma.visit.count({ where: { status: 'PENDING' } }),
   ])
 
   return (
@@ -24,11 +24,11 @@ export default async function AdminPage() {
         <Link href="/" className="text-ink-soft underline">
           ← 캘린더로
         </Link>
-        <Link href="/admin/approvals" className="font-semibold text-brand-deep underline">
-          승인함{pendingCount > 0 ? ` (${pendingCount})` : ''} →
-        </Link>
       </div>
-      <h1 className="mt-2 font-display text-2xl text-ink">관리</h1>
+      <div className="mt-2 flex items-center justify-between">
+        <h1 className="font-display text-2xl text-ink">관리</h1>
+        <LogoutButton />
+      </div>
       <Link
         href="/admin/mystery"
         className="mt-4 flex min-h-12 items-center justify-between rounded-2xl border border-line bg-card px-4 text-sm font-semibold text-ink shadow-warm"
