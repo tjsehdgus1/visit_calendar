@@ -62,7 +62,7 @@ npm run dev
 | `npm run db:seed` | 시드 실행 |
 | `npm run db:studio` | Prisma Studio |
 | `npm run db:up` / `db:down` | 개발용 Docker DB 컨테이너 기동/중지 |
-| `npm run smoke` | 승인 플로우 스모크 테스트 (`scripts/smoke-approval.ts`) |
+| `npm run smoke` | 방문 등록·뱃지 스모크 테스트 (`scripts/smoke-visit.ts`) |
 
 ## NAS 배포 (DSM 7.2, 2026-09 검증)
 

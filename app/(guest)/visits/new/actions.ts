@@ -76,12 +76,12 @@ export async function submitVisit(
     }
   }
 
-  // 호스트 제출은 즉시 승인되므로, 사진 저장이 끝난 뒤에 뱃지를 판정해야
+  // 제출 즉시 등록되므로(승인 절차 폐지, 2026-09-27), 사진 저장이 끝난 뒤에 뱃지를 판정해야
   // PHOTO_30처럼 사진 수에 걸린 뱃지를 그 순간에 놓치지 않는다.
-  if (user.role === 'HOST') await grantBadgesForVisit(visitId)
+  await grantBadgesForVisit(visitId)
 
   revalidatePath('/')
-  revalidatePath('/admin/approvals')
+  revalidatePath('/ranking')
   revalidatePath('/mystery')
   const photosAllFailed = photos.length > 0 && savedPhotoCount === 0
   redirect(photosAllFailed ? '/?submitted=1&photos=failed' : '/?submitted=1')

@@ -74,7 +74,8 @@ model Visit {
   visitDate     DateTime    @db.Date
   timeSlot      TimeSlot
   memo          String?     @db.Text
-  status        VisitStatus @default(PENDING)
+  /// 승인 절차 폐지(2026-09-27 사용자 결정) — 제출 즉시 APPROVED. PENDING·REJECTED는 과거 데이터 호환용으로만 남긴다
+  status        VisitStatus @default(APPROVED)
   submittedById String
   reviewedById  String?
   reviewedAt    DateTime?

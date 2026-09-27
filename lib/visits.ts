@@ -15,22 +15,18 @@ export type VisitInput = {
 }
 
 /**
- * 호스트가 올리면 즉시 승인, 손님이 올리면 대기.
+ * 누가 올리든 즉시 등록된다 — 승인 절차 폐지 (2026-09-27 사용자 결정).
  * 뱃지 판정은 여기서 하지 않는다 — 사진 저장 전에 판정하면 PHOTO_30 등 사진 수에 걸린
- * 뱃지가 그 순간 누락된다. 즉시승인 경로의 뱃지 판정은 호출자가 사진 저장을 마친 뒤 해야 한다.
+ * 뱃지가 그 순간 누락된다. 호출자가 사진 저장을 마친 뒤 grantBadgesForVisit을 불러야 한다.
  */
 export async function createVisit(input: VisitInput, actor: SessionUser): Promise<string> {
-  const status = actor.role === 'HOST' ? 'APPROVED' : 'PENDING'
-
   const visit = await prisma.visit.create({
     data: {
       visitDate: toDateOnly(input.visitDate),
       timeSlot: input.timeSlot,
       memo: input.memo?.trim() || null,
-      status,
+      status: 'APPROVED',
       submittedById: actor.id,
-      reviewedById: status === 'APPROVED' ? actor.id : null,
-      reviewedAt: status === 'APPROVED' ? new Date() : null,
       attendees: { create: [...new Set(input.attendeeIds)].map((userId) => ({ userId })) },
       tags: { create: [...new Set(input.tagIds)].map((tagId) => ({ tagId })) },
       mysteryPlays: input.mysteryPlay
@@ -90,26 +86,4 @@ export async function grantBadgesForVisit(visitId: string): Promise<Record<strin
     if (fresh.length > 0) result[a.user.nickname] = fresh
   }
   return result
-}
-
-export async function approveVisit(visitId: string, hostId: string) {
-  const updated = await prisma.visit.updateMany({
-    where: { id: visitId, status: 'PENDING' },
-    data: { status: 'APPROVED', reviewedById: hostId, reviewedAt: new Date() },
-  })
-  if (updated.count === 0) return { newBadges: {} } // 이미 처리됨 (중복 클릭)
-
-  return { newBadges: await grantBadgesForVisit(visitId) }
-}
-
-export async function rejectVisit(visitId: string, hostId: string, reason: string) {
-  await prisma.visit.updateMany({
-    where: { id: visitId, status: 'PENDING' },
-    data: {
-      status: 'REJECTED',
-      reviewedById: hostId,
-      reviewedAt: new Date(),
-      rejectReason: reason.trim() || null,
-    },
-  })
 }

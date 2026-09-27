@@ -78,7 +78,6 @@ export type PlayRow = {
   /** 함께한 사람: 방문이 있으면 참석자 + 제출자, 없으면 이관 텍스트 */
   players: string
   visitId: string | null
-  effective: boolean
 }
 
 export async function getGame(id: string) {
@@ -100,7 +99,6 @@ export async function getGame(id: string) {
       ? [...new Set([...p.visit.attendees.map((a) => a.user.nickname), p.visit.submittedBy.nickname])].join(', ')
       : (p.playersText ?? ''),
     visitId: p.visit?.id ?? null,
-    effective: isEffectivePlay(toPlayLike(p)),
   }))
   const eff = g.plays.map(toPlayLike).filter(isEffectivePlay)
   return { ...g, plays, playCount: eff.length, avgRating: averageRating(eff) }

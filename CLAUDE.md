@@ -22,7 +22,7 @@ PostgreSQL 17 (NAS 컨테이너) · NextAuth v5 Credentials · zod · sharp
 npm run dev
 npm test             # 점수·뱃지·날짜 순수 로직
 npm run lint && npm run typecheck && npm run build   # 완료 기준 (typecheck 전 pretypecheck가 next typegen 자동 실행)
-npm run smoke         # 승인 플로우 스모크 테스트 (scripts/smoke-approval.ts)
+npm run smoke         # 방문 등록·뱃지 스모크 테스트 (scripts/smoke-visit.ts)
 npm run db:migrate
 npm run db:seed
 ```
@@ -43,11 +43,13 @@ npm run db:seed
 9. **호스트(집주인)는 참석자·점수·랭킹 대상이 아니다** (2026-08-26 사용자 확정) — 기록 제출 시
    손님만 본인 자동 포함, 호스트는 온 사람만 선택. 랭킹 집계는 `role: GUEST`만.
    호스트는 **2명**(선동현·노성소, 2026-09-07) — 호스트가 1명이라고 가정하는 코드를 쓰지 않는다
+10. **승인 절차 없음** (2026-09-27 사용자 결정) — 방문 기록은 누가 올리든 제출 즉시 `APPROVED`.
+   승인함·승인 탭을 되살리지 않는다. `PENDING`·`REJECTED`는 과거 데이터 호환용 enum으로만 남아 있다
 
 ## 구조
 - `lib/date.ts`, `lib/scoring/{points,titles,badges}.ts` — **Prisma를 import 하지 않는 순수 함수**
 - `lib/scoring/collect.ts` — Prisma → 순수 함수 입력으로 변환하는 유일한 지점
-- `lib/visits.ts` — 모임 생성·승인·뱃지 부여
+- `lib/visits.ts` — 모임 생성(즉시 등록)·뱃지 부여
 - `lib/ranking.ts` / `lib/season.ts` — 랭킹 집계 / 시즌 마감
 - `lib/mystery/logic.ts`(순수) / `lib/mystery/index.ts`(Prisma) — 머더미스터리 서재·플레이. 플레이는 방문(Visit)에 붙거나
   방문 없이 단독으로(호스트, 2026-09-27) 남기고, 방문이 없거나 APPROVED인 플레이만 통계에 센다. 설계서 `docs/superpowers/specs/2026-09-07-murder-mystery-design.md`
@@ -55,7 +57,7 @@ npm run db:seed
 
 ## 검증
 `npm run lint && npm run typecheck && npm run build && npm test` 전부 통과 +
-375px 뷰포트에서 가입→기록→승인→랭킹 반영 수동 확인
+375px 뷰포트에서 가입→기록→랭킹 반영 수동 확인
 
 ## 후속 과제 (설계서 §10)
 벽걸이 디스플레이 전용 화면 `/wall`, 연말 결산 페이지

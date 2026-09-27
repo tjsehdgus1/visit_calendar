@@ -48,7 +48,7 @@ export default async function CalendarPage({ searchParams }: Props) {
     <main className="mx-auto max-w-md px-4 py-6">
       {sp.submitted === '1' && (
         <p className="mb-4 rounded-xl border border-line bg-card px-3 py-2 text-sm font-semibold text-ok shadow-warm">
-          기록이 올라갔어요! 호스트 승인을 기다리는 중입니다
+          기록이 올라갔어요!
         </p>
       )}
       {sp.photos === 'failed' && (
