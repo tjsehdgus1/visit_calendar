@@ -25,7 +25,8 @@ export default async function CalendarPage({ searchParams }: Props) {
       attendees: { include: { user: { select: { nickname: true } } } },
       tags: { include: { tag: { select: { emoji: true } } } },
     },
-    orderBy: { visitDate: 'asc' },
+    // 같은 날 모임이 여러 번이면 먼저 올린 기록이 칸의 링크가 된다 (상세 화면의 '이 날의 다른 모임'과 같은 순서)
+    orderBy: [{ visitDate: 'asc' }, { createdAt: 'asc' }],
   })
 
   const grouped = new Map<string, CalendarDay>()
