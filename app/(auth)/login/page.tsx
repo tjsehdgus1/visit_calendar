@@ -21,7 +21,7 @@ export default function LoginPage() {
   return (
     <main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center bg-cream px-6 py-10">
       <div className="rounded-2xl border border-line bg-card p-6 shadow-warm">
-        <h1 className="mb-6 text-center font-display text-3xl text-brand-deep">우리집 방문일지</h1>
+        <h1 className="mb-6 text-center font-display text-3xl text-brand-deep">선소방문기록</h1>
 
         <Suspense fallback={null}>
           <SignupNotice />
