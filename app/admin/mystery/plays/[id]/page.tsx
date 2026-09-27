@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { requireHost } from '@/lib/auth/guard'
 import { fromDateOnly, todayKst } from '@/lib/date'
 import { getPlay } from '@/lib/mystery'
-import PlayForm from './PlayForm'
+import PlayForm from '../PlayForm'
 import { deletePlayAction } from '../actions'
 
 export default async function AdminPlayEditPage({ params }: { params: Promise<{ id: string }> }) {

@@ -51,10 +51,22 @@ export default async function MysteryGamePage({ params }: { params: Promise<{ id
       )}
 
       <section className="mt-6">
-        <h2 className="text-sm font-semibold text-ink-soft">플레이 기록</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-ink-soft">플레이 기록</h2>
+          {user.role === 'HOST' && game.active && (
+            <Link
+              href={`/admin/mystery/plays/new?gameId=${game.id}`}
+              className="inline-flex min-h-11 items-center text-sm font-semibold text-brand-deep underline"
+            >
+              + 기록 추가
+            </Link>
+          )}
+        </div>
         {game.plays.length === 0 ? (
           <p className="mt-1 text-sm text-ink-soft">
-            아직 없습니다. 놀러온 날 기록에서 머더미스터리 태그를 켜면 남길 수 있어요.
+            {user.role === 'HOST'
+              ? '아직 없습니다. + 기록 추가로 바로 남기거나, 방문 기록에서 머더미스터리 태그를 켜면 함께 남습니다.'
+              : '아직 없습니다. 놀러온 날 기록에서 머더미스터리 태그를 켜면 남길 수 있어요.'}
           </p>
         ) : (
           <ul className="mt-1 flex flex-col gap-2">

@@ -218,14 +218,14 @@ model MysteryGame {
 model MysteryPlay {
   id          String   @id @default(cuid())
   gameId      String
-  /// 방문 기록에 붙은 플레이. 노션 이관분은 NULL
+  /// 방문 기록에 붙은 플레이. 노션 이관분·단독 기록(호스트, 2026-09-27)은 NULL
   visitId     String?
   /// 방문이 있으면 visitDate와 동일. 'YYYY-MM-DD' 문자열로만 다룬다
   playedOn    DateTime @db.Date
   /// 1~5
   rating      Int
   review      String?
-  /// 이관분 전용: "동현, 성소, 혜민". 방문이 있으면 참석자로 계산한다
+  /// 방문 없는 플레이(이관분·단독 기록)의 함께한 사람: "동현, 성소, 혜민". 방문이 있으면 참석자로 계산한다
   playersText String?
   createdById String?
   createdAt   DateTime @default(now())

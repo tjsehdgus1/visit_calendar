@@ -197,6 +197,28 @@ export async function updatePlay(id: string, input: PlayUpdate) {
   })
 }
 
+export type PlayCreate = { gameId: string; rating: number; review?: string; playedOn: string; playersText?: string }
+
+/**
+ * 방문 기록 없이 남기는 플레이 (호스트, 2026-09-27 사용자 요청). visitId가 없으므로 승인 없이 바로 서재 통계에 들어가고,
+ * 방문이 아니라서 캘린더·점수에는 잡히지 않는다. 숨긴 게임이면 null
+ */
+export async function createStandalonePlay(input: PlayCreate, createdById: string) {
+  const game = await prisma.mysteryGame.findFirst({ where: { id: input.gameId, active: true }, select: { id: true } })
+  if (!game) return null
+  return prisma.mysteryPlay.create({
+    data: {
+      gameId: game.id,
+      playedOn: toDateOnly(input.playedOn),
+      rating: input.rating,
+      review: input.review?.trim() || null,
+      playersText: input.playersText?.trim() || null,
+      createdById,
+    },
+    select: { id: true, gameId: true },
+  })
+}
+
 export async function deletePlay(id: string) {
   return prisma.mysteryPlay.delete({ where: { id }, select: { gameId: true } })
 }

@@ -8,6 +8,9 @@ const nameSchema = z
   .trim()
   .regex(/^[가-힣a-zA-Z0-9]{2,20}$/, '이름은 한글·영문·숫자 2~20자여야 합니다 (공백 없이).')
 
+/** 'YYYY-MM-DD' — Date로 바꾸지 않고 문자열로 다룬다 (CLAUDE.md 원칙 4) */
+const dateOnlySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '날짜 형식이 올바르지 않습니다.')
+
 /** 비밀번호는 숫자 4자리 (2026-09-07 사용자 확정) */
 export const PASSWORD_PATTERN = /^\d{4}$/
 const passwordSchema = z.string().regex(PASSWORD_PATTERN, '비밀번호는 숫자 4자리여야 합니다.')
@@ -53,6 +56,12 @@ export const mysteryPlaySchema = z.object({
 export const mysteryPlayEditSchema = z.object({
   rating: z.coerce.number().int().min(1, '별점을 골라 주세요.').max(5, '별점은 5점까지입니다.'),
   review: z.string().trim().max(200, '한줄 후기는 200자 이하여야 합니다.').optional(),
-  playedOn: z.string().regex(/^d{4}-d{2}-d{2}$/, '날짜 형식이 올바르지 않습니다.').optional(),
+  playedOn: dateOnlySchema.optional(),
+  playersText: z.string().trim().max(200, '함께한 사람은 200자 이하여야 합니다.').optional(),
+})
+
+/** 방문 기록 없이 남기는 플레이 (호스트, 2026-09-27 사용자 요청). 날짜·함께한 사람을 직접 적는다 */
+export const mysteryStandalonePlaySchema = mysteryPlaySchema.extend({
+  playedOn: dateOnlySchema,
   playersText: z.string().trim().max(200, '함께한 사람은 200자 이하여야 합니다.').optional(),
 })

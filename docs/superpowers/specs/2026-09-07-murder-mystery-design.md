@@ -2,6 +2,7 @@
 
 노션 "머더미스터리 플레이 기록" 데이터베이스를 앱으로 이식한다. 사용자 결정(2026-09-07):
 플레이 기록은 **방문 기록(Visit)에 붙인다**, 별점·후기는 **판당 하나**, 서재 관리는 **호스트만**, 노션 기존 데이터는 **이관**.
+**2026-09-27 추가**: 방문 기록 없이 **플레이만 따로** 남길 수 있다 (호스트, §2-1).
 
 ## 1. 데이터 모델
 
@@ -23,11 +24,11 @@ model MysteryGame {
 model MysteryPlay {
   id          String   @id @default(cuid())
   gameId      String
-  visitId     String?                     // 방문 기록에 붙은 플레이. 노션 이관분은 NULL
+  visitId     String?                     // 방문 기록에 붙은 플레이. 노션 이관분·단독 기록은 NULL
   playedOn    DateTime @db.Date           // 방문이 있으면 visitDate와 동일. 'YYYY-MM-DD' 문자열로만 다룬다
   rating      Int                         // 1~5
   review      String?                     // 한줄 후기 (200자)
-  playersText String?                     // 이관분 전용: "동현, 성소, 혜민" (방문이 있으면 참석자로 계산)
+  playersText String?                     // 방문 없는 플레이(이관분·단독 기록): "동현, 성소, 혜민" (방문이 있으면 참석자로 계산)
   createdById String?
   createdAt   DateTime @default(now())
   game        MysteryGame @relation(fields: [gameId], references: [id])
@@ -51,6 +52,15 @@ model MysteryPlay {
    머더미스터리 태그가 켜져 있는데 게임이 없으면 검증 오류. 태그가 꺼져 있으면 플레이 입력은 무시한다.
 3. 방문 상세(`/visits/[id]`)에 🔍 게임명 · ⭐별점 · 후기를 표시한다.
 4. 방문 승인/거절은 기존과 같다. 서재 통계는 유효한 플레이만 센다. 방문 삭제 시 플레이도 함께 삭제(Cascade).
+
+### 2-1. 단독 기록 (2026-09-27 사용자 요청)
+
+누가 놀러와 방문 기록을 쓸 때만이 아니라, 머더미스터리 플레이만 따로 남긴다.
+
+- 진입: 서재(`/mystery`) "+ 플레이 기록 남기기", 게임 상세 "+ 기록 추가"(그 게임을 미리 선택) → `/admin/mystery/plays/new` (호스트).
+- 입력: 게임(활성, 필수) · 플레이 날짜(기본 오늘, 미래 불가) · 함께한 사람(자유 텍스트 → `playersText`) · 별점(필수) · 한줄 후기.
+- `visitId` 없이 저장 → 승인 없이 바로 서재 통계에 반영. 방문이 아니므로 **캘린더·점수·뱃지에는 잡히지 않는다**.
+- 수정·삭제는 기존 플레이 수정 화면(`/admin/mystery/plays/[id]`)을 같이 쓴다 (폼 `app/admin/mystery/plays/PlayForm.tsx`).
 
 ## 3. 화면
 
@@ -76,7 +86,7 @@ model MysteryPlay {
 ## 5. 권한·검증
 
 - 서재 조회·게임 상세: 로그인 필수. 게임 추가·수정·숨김: `requireHost`.
-- 플레이 생성: 방문 기록 제출자(기존 규칙 그대로).
+- 플레이 생성: 방문 기록 제출자(기존 규칙 그대로). 단독 기록(§2-1)은 `requireHost`.
 - zod: title 1~60자, players 2~12, playTime ≤30자, owner ≤20자, description ≤2000자, rating 1~5 정수, review ≤200자.
 
 ## 6. 범위 밖

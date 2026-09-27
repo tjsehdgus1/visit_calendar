@@ -40,6 +40,14 @@ export default async function MysteryLibraryPage({ searchParams }: Props) {
       <p className="mt-1 text-sm text-ink-soft">
         {games.length}개 중 {games.filter((g) => g.playCount > 0).length}개 플레이함
       </p>
+      {user.role === 'HOST' && (
+        <Link
+          href="/admin/mystery/plays/new"
+          className="mt-4 flex min-h-12 items-center justify-center rounded-2xl bg-cta text-sm font-semibold text-white transition-transform duration-150 active:scale-[0.97] motion-reduce:transition-none"
+        >
+          + 플레이 기록 남기기
+        </Link>
+      )}
 
       <nav aria-label="필터" className="mt-4 flex flex-wrap gap-2">
         {FILTERS.map((f) => {

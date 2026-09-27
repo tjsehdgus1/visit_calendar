@@ -1,4 +1,4 @@
-# CLAUDE.md — visit_calendar (우리집 방문일지)
+# CLAUDE.md — visit_calendar (선소방문기록)
 
 지인들의 집 방문을 캘린더로 기록하고 점수·랭킹·뱃지로 즐기는 비공개 웹앱.
 자택 Synology NAS의 Docker에 배포. 사용자는 호스트 2명(부부) + 지인 수십 명.
@@ -49,8 +49,8 @@ npm run db:seed
 - `lib/scoring/collect.ts` — Prisma → 순수 함수 입력으로 변환하는 유일한 지점
 - `lib/visits.ts` — 모임 생성·승인·뱃지 부여
 - `lib/ranking.ts` / `lib/season.ts` — 랭킹 집계 / 시즌 마감
-- `lib/mystery/logic.ts`(순수) / `lib/mystery/index.ts`(Prisma) — 머더미스터리 서재·플레이. 플레이는 방문(Visit)에 붙고,
-  방문이 없거나 APPROVED인 플레이만 통계에 센다. 설계서 `docs/superpowers/specs/2026-09-07-murder-mystery-design.md`
+- `lib/mystery/logic.ts`(순수) / `lib/mystery/index.ts`(Prisma) — 머더미스터리 서재·플레이. 플레이는 방문(Visit)에 붙거나
+  방문 없이 단독으로(호스트, 2026-09-27) 남기고, 방문이 없거나 APPROVED인 플레이만 통계에 센다. 설계서 `docs/superpowers/specs/2026-09-07-murder-mystery-design.md`
 - `app/(guest)/` 손님 화면, `app/admin/` 호스트 전용
 
 ## 검증
